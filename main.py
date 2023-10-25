@@ -1,137 +1,119 @@
-import ast
-import datetime
-import typing
+import atexit
 
-from requests import get
-
-from comandos import *
 import discord
-from discord.app_commands import Choice
-from discord.ext import commands
-from discord import app_commands
-from discord.ext.commands import Bot
 import json
-import random, time
+import os
 import sqlite3
-import os, io
-import statistics
-import typing
 
-conn = sqlite3.connect("MilitaryData/memory.db")
-cur = conn.cursor()
+import peewee
+from peewee import Model, CharField, SqliteDatabase
 
+# Define the database
+db = SqliteDatabase("MestreSaraData/memory.db")
+
+# Constants for file names
+TOKEN_FILE = "token.json"
+USER_INFO_FILE = "MestreSaraData/userinfo.json"
+VERSION_INFO_FILE = "versioninfo.json"
+
+# Define a Peewee model for the whitelist
+class Whitelist(Model):
+    userid = CharField(unique=True)
+
+    class Meta:
+        database = db
 
 class MainExecution:
-
     def __init__(self):
-
-        self.intents = None
-        self.version_title = None
-        self.version = None
         self.version_info = None
-        self.activity = None
-        self.setversioninfo()
-        self.setuserinfo()
-        self.initializedatabase()
+        self.token = None
+        self.initialize_database()
+        self.load_configuration()
 
-    def checkwhitelist(self, userid):
-
-        whitelist = cur.execute('''SELECT userid FROM whitelist;
-
-        ''').fetchone()
-
-        userid = str(userid)
-        print(whitelist)
-        id_check = any(user in userid for user in whitelist)
-        if id_check:
+    def check_whitelist(self, userid):
+        try:
+            Whitelist.get(Whitelist.userid == userid)
             print("Whitelisted user used a command.")
-        return id_check
+            return True
+        except Whitelist.DoesNotExist:
+            return False
 
-    def initializedatabase(self):
-        pass
+    def initialize_database(self):
+        try:
+            db.connect()
+        except peewee.OperationalError as e:
+            # If the connection is already open, ignore the exception
+            if 'Connection already opened' not in str(e):
+                raise  # If it's a different OperationalError, raise it
 
-    def tokenload(self):
-        if os.path.isfile("token.json") and os.access("token.json", os.R_OK):
+        db.create_tables([Whitelist], safe=True)
+
+    def load_configuration(self):
+        # Load version information
+        with open(VERSION_INFO_FILE, encoding='utf-8') as version_info_file:
+            self.version_info = json.load(version_info_file)
+
+        # Load token
+        if os.path.isfile(TOKEN_FILE) and os.access(TOKEN_FILE, os.R_OK):
             print("Token detected.")
-            token = open("token.json")
-            token = json.load(token)
-            token = token["token"]
-            return token
+            with open(TOKEN_FILE, "r") as file:
+                token_data = json.load(file)
+                self.token = token_data.get("token")
         else:
-            token = input("Inform the token to activate Providentia. \n")
-            data = {
-                'token': token
-            }
-            with open("token.json", "w") as file:
+            self.token = input("Enter the token to activate Mestre Sara: \n")
+            data = {'token': self.token}
+            with open(TOKEN_FILE, "w") as file:
                 json.dump(data, file, indent=4)
-            token = open("token.json")
-            token = json.load(token)
-            token = token["token"]
-            return token
 
-    def setuserinfo(self):
-        user_info = open("MilitaryData/userinfo.json")
-        user_info = json.load(user_info)
-        return user_info
-
-    def callIntents(self):
-        self.intents = discord.Intents.default()
-        self.intents.message_content = True
-        intents = self.intents
+    def call_intents(self):
+        intents = discord.Intents.default()
+        intents.message_content = True
         return intents
 
-    def setversioninfo(self):
-        version_info = open('versioninfo.json', encoding='utf-8')
-        self.version_info = json.load(version_info)
-        self.version = self.version_info["version"]
-        self.version_title = self.version_info["versiontitle"]
-
-        return self.version_info
-
-    def defaultembed(self, title, message):
-
-        self.embed_configuration = discord.Embed(title=f"{title}", description=f"{message}", color=0x2ecc71)
-        self.embed_configuration.set_author(name="PLYG-7X42",
-                                            icon_url="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/9f1ed69b-9e98-4f78-acda-c95c6f4be159/db73tp3-8c5589a6-051c-4408-b244-f451c599b04d.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzlmMWVkNjliLTllOTgtNGY3OC1hY2RhLWM5NWM2ZjRiZTE1OVwvZGI3M3RwMy04YzU1ODlhNi0wNTFjLTQ0MDgtYjI0NC1mNDUxYzU5OWIwNGQuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.7X4JjtqAwnetH9HC9f4sl3kcik8VCFCE5nr1MGB607M")
-        return self.embed_configuration
+    def default_embed(self, title, message):
+        embed = discord.Embed(
+            title=f"{title}",
+            description=f"{message}",
+            color=0x2ecc71
+        )
+        embed.set_author(
+            name="PLYG-7X42",
+            icon_url="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/9f1ed69b-9e98-4f78-acda-c95c6f4be159/db73tp3-8c5589a6-051c-4408-b244-f451c599b04d.jpg?token=YOUR_TOKEN_HERE"
+        )
+        return embed
 
 class aclient(discord.Client):
-
     def __init__(self):
-        intents = MainExecution().callIntents()
-        super().__init__(intents=intents)
+        super().__init__(intents=MainExecution().call_intents())
         self.synced = False
 
     async def on_ready(self):
         await self.wait_until_ready()
         if not self.synced:
-            await tree.sync()
-        await self.change_presence(status=discord.Status.dnd, activity=(
-            discord.Activity(type=discord.ActivityType.listening, name="aos meios de comunicações inimigos.")))
+            await self.sync_data()
+        await self.change_presence(
+            status=discord.Status.dnd,
+            activity=discord.Activity(
+                type=discord.ActivityType.listening,
+                name="os clientes tagarelar na Taverna da Sara."
+            )
+        )
 
     async def on_message(self, message):
         pass
 
+    async def sync_data(self):
+        # Implement advanced data synchronization logic here
+        pass
 
-# EVENTS
+    # Close the database connection
+    atexit.register(db.close)
 
-client = aclient()
-tree = app_commands.CommandTree(client)
-version_info = MainExecution().setversioninfo()
-user_info = MainExecution().setuserinfo()
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print(
-        "The key words of economics are urbanization, industrialization, centralization, efficiency, quantity, speed.")
-    MainExecution()
-    token = MainExecution().tokenload()
-    version = MainExecution().setversioninfo()
-    print(f"Providentia {version['version']}: {version['versiontitle']}")
+    print("The keywords of the economy are urbanization, industrialization, centralization, efficiency, quantity, velocity.")
+    main_execution = MainExecution()
+    client = aclient()
+    token = main_execution.token
+    version = main_execution.version_info
+    print(f"Mestre Sara {version['version']}: {version['versiontitle']}")
     client.run(token)
-
-conn.close()
-cur.close()
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
