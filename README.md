@@ -3,7 +3,7 @@
 And no one's gonna save you from the beast about to strike
 You know it's thriller, thriller night"*
 
-![Taverna de RPG](https://i.pinimg.com/originals/73/d4/c5/73d4c581bab985c883b361893f080d5b.gif)
+![Taverna de RPG](https://assets.classicfm.com/2013/29/paganini-hits-the-pub-1374659219-view-0.jpg)
 
 Este incrível bot, **Mestre Sara**, é a criação da equipe Lygon Xin, dedicada a proporcionar noites inesquecíveis de diversão em uma taverna virtual de RPG. Prepare-se para ficar bêbado, dançar como nunca e curtir com seus amigos, enquanto eventos e personagens aleatórios agitam a noite com aventuras surpreendentes.
 
