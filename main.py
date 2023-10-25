@@ -6,18 +6,14 @@ from requests import get
 
 from comandos import *
 import discord
-import sympy
 from discord.app_commands import Choice
 from discord.ext import commands
 from discord import app_commands
 from discord.ext.commands import Bot
 import json
 import random, time
-import wikipedia
 import sqlite3
 import os, io
-import numpy as np
-from sympy import *
 import statistics
 import typing
 
@@ -52,22 +48,7 @@ class MainExecution:
         return id_check
 
     def initializedatabase(self):
-        cur.execute('''
-                            CREATE TABLE IF NOT EXISTS frases(entrada TXT, saida1 TXT, saida2 TXT, saida3 TXT);
-                ''')
-        cur.execute('''
-                    CREATE TABLE IF NOT EXISTS whitelist(userid INT);
-        ''')
-        cur.execute('''
-                            CREATE TABLE IF NOT EXISTS rps(titulo TEXT, descricao TEXT, autor TEXT, imagem TEXT);
-                ''')
-
-        cur.execute('''
-                                    CREATE TABLE IF NOT EXISTS fichaRP(titulorp TEXT, jogador TEXT, nomepersonagem TEXT, personalidade TEXT, idade TEXT, habilidades TEXT, aparencia TEXT, historia TEXT, imagem TEXT, genero TEXT);
-                        ''')
-        cur.execute('''
-                                            CREATE TABLE IF NOT EXISTS censura(palavra TEXT);
-                                ''')
+        pass
 
     def tokenload(self):
         if os.path.isfile("token.json") and os.access("token.json", os.R_OK):
