@@ -1,4 +1,5 @@
 import atexit
+import datetime
 import sys
 import logging
 import requests
@@ -15,15 +16,23 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-
 import peewee
 from peewee import Model, CharField, SqliteDatabase
 
+
+# SYSTEM FUNCTIONS AND DERIVATIVES
+def console_log(message, err=None):
+    print(f"[{datetime.date.today()} {datetime.datetime.now()}] [INFO REGULAR  ] {message}")
+    if err:
+        print(err)
+
 # Logging
+LOG_FILE = 'sara.log'
+if os.path.isfile(LOG_FILE) and os.access(LOG_FILE, os.R_OK):
+    os.remove('sara.log')
 logging.basicConfig(filename='sara.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-#Database
+# Database
 db = SqliteDatabase("MestreSaraData/memory.db")
 
 # Constants for file names
@@ -38,8 +47,10 @@ VERSION_INFO_FILE = "versioninfo.json"
 if os.path.isfile(CLIENT_FILE) and os.access(CLIENT_FILE, os.R_OK):
     pass
 else:
-    print("Baixe o arquivo com o código secreto do cliente: \n\n https://drive.google.com/file/d/1R3cb2nR7zuudqg0O5NrKJZ3suLnZEn3t/view?usp=sharing")
+    console_log(
+        "Baixe o arquivo com o código secreto do cliente: \n\n https://drive.google.com/file/d/1R3cb2nR7zuudqg0O5NrKJZ3suLnZEn3t/view?usp=sharing")
     sys.exit()
+
 
 # Define a Peewee model for the whitelist
 class Whitelist(Model):
@@ -48,6 +59,7 @@ class Whitelist(Model):
     class Meta:
         database = db
 
+
 class MainExecution:
     def __init__(self):
         self.version_info = None
@@ -55,14 +67,14 @@ class MainExecution:
         self.initialize_database()
         self.load_configuration()
 
-    async def termination(self):
-        print(f"Initiation of termination procedures. \n")
+    def termination(self):
+        console_log(f"Initiation of termination procedures. \n")
         db.close()
 
     def check_whitelist(self, userid):
         try:
             Whitelist.get(Whitelist.userid == userid)
-            print("Whitelisted user used a command.")
+            console_log("Whitelisted user used a command.")
             return True
         except Whitelist.DoesNotExist:
             return False
@@ -83,7 +95,7 @@ class MainExecution:
             self.version_info = json.load(version_info_file)
 
         if os.path.isfile(TOKEN_FILE) and os.access(TOKEN_FILE, os.R_OK):
-            print("Token detected.")
+            console_log("Token detected.")
             with open(TOKEN_FILE, "r") as file:
                 token_data = json.load(file)
                 self.bot_token = token_data.get("token")
@@ -108,22 +120,23 @@ class MainExecution:
                 CREDENTIALS_RANGE = 'B1'
 
                 result = sheet.values().get(spreadsheetId=CREDENTIALS_SHEET_ID,
-                                        range=CREDENTIALS_RANGE).execute()
-                token = result.get('values',[])
+                                            range=CREDENTIALS_RANGE).execute()
+                token = result.get('values', [])
                 token = [x[0] for x in token]
                 self.bot_token = token[0]
-                print(f"Initiating connection with token: {self.bot_token}")
+                console_log(f"Initiating connection with token: {self.bot_token}")
                 data = {'token': self.bot_token}
                 with open(TOKEN_FILE, "w") as file:
                     json.dump(data, file, indent=4)
                 if not token:
-                    print("Token has not been found.")
+                    console_log("Token has not been found.")
                     return
 
 
 
             except HttpError as e:
-                print(e)
+                console_log(e)
+                logging.error(e)
 
     def call_intents(self):
         intents = discord.Intents.default()
@@ -141,6 +154,7 @@ class MainExecution:
             icon_url="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/9f1ed69b-9e98-4f78-acda-c95c6f4be159/db73tp3-8c5589a6-051c-4408-b244-f451c599b04d.jpg?token=YOUR_TOKEN_HERE"
         )
         return embed
+
 
 class aclient(discord.Client):
     def __init__(self):
@@ -166,32 +180,31 @@ class aclient(discord.Client):
         # Implement advanced data synchronization logic here
         pass
 
+
 # ------------------------------------------------------------------------------
 # --------------------------------- EVENTS -------------------------------------
 client = aclient()
-tree = app_commands.CommandTree()
+tree = app_commands.CommandTree(client)
 
-
-    # Close the database connection
+# Close the database connection
 
 if __name__ == '__main__':
-    print("The keywords of the economy are urbanization, industrialization, centralization, efficiency, quantity, velocity.")
+    console_log(
+        "The keywords of the economy are urbanization, industrialization, centralization, efficiency, quantity, velocity.")
     # -----
-    print("Initializing...")
+    console_log("Initializing...")
     try:
         main_execution = MainExecution()
         bot_token = main_execution.bot_token
         version = main_execution.version_info
-        print(f"Mestre Sara {version['version']}: {version['versiontitle']}")
-        print("Pre-requisites of initialization completed.\n\n")
+        console_log(f"Mestre Sara {version['version']}: {version['versiontitle']}")
+        console_log("Pre-requisites of initialization completed.\n\n")
     except Exception as err:
-        print("Error while managing pre-requisites of inicialization.\n\n")
+        console_log("Error while managing pre-requisites of inicialization.\n\n")
         logging.error(err)
     try:
         client.run(bot_token)
     except Exception as err:
-        print("Error while executing the client. \n\n")
+        console_log("Error while executing the client. \n\n")
         logging.error(err)
     atexit.register(main_execution.termination)
-
-
