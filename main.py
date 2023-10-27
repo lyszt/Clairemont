@@ -1,5 +1,6 @@
 import atexit
 import datetime
+import random
 import sys
 import logging
 import requests
@@ -7,6 +8,10 @@ import discord
 import json
 import os
 import sqlite3
+import asyncio
+
+# INNER SCOPE
+import lists
 
 from discord import app_commands
 from google.auth.transport.requests import Request
@@ -22,7 +27,7 @@ from peewee import Model, CharField, SqliteDatabase
 
 # SYSTEM FUNCTIONS AND DERIVATIVES
 def console_log(message, err=None):
-    print(f"[{datetime.date.today()} {datetime.datetime.now()}] [INFO REGULAR  ] {message}")
+    print(f"[{datetime.date.today()} {datetime.datetime.now()}] [INFO    ] {message}")
     if err:
         print(err)
 
@@ -70,6 +75,7 @@ class MainExecution:
     def termination(self):
         console_log(f"Initiation of termination procedures. \n")
         db.close()
+        console_log("Termination succeeded.")
 
     def check_whitelist(self, userid):
         try:
@@ -161,6 +167,17 @@ class aclient(discord.Client):
         super().__init__(intents=MainExecution().call_intents())
         self.synced = False
 
+    async def change_presence_periodically(self):
+        while True:
+            await asyncio.sleep(600)  # Change the status every hour (you can adjust the time interval)
+            await client.change_presence(
+                status=discord.Status.dnd,
+                activity=discord.Activity(
+                    type=discord.ActivityType.listening,
+                    name=random.choice(lists.variacoes)
+                )
+            )
+
     async def on_ready(self):
         await self.wait_until_ready()
         if not self.synced:
@@ -169,9 +186,10 @@ class aclient(discord.Client):
             status=discord.Status.dnd,
             activity=discord.Activity(
                 type=discord.ActivityType.listening,
-                name="os clientes tagarelar na Taverna da Sara."
+                name=random.choice(lists.variacoes)
             )
         )
+        await self.change_presence_periodically()
 
     async def on_message(self, message):
         pass
