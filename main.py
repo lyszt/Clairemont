@@ -1,9 +1,16 @@
 import atexit
-
+import requests
 import discord
 import json
 import os
 import sqlite3
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib import flow
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
 
 import peewee
 from peewee import Model, CharField, SqliteDatabase
@@ -12,7 +19,11 @@ from peewee import Model, CharField, SqliteDatabase
 db = SqliteDatabase("MestreSaraData/memory.db")
 
 # Constants for file names
+# -- GOOGLE API
+CLIENT_FILE = 'google.json'
 TOKEN_FILE = "token.json"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+# DISCORD
 USER_INFO_FILE = "MestreSaraData/userinfo.json"
 VERSION_INFO_FILE = "versioninfo.json"
 
@@ -26,7 +37,7 @@ class Whitelist(Model):
 class MainExecution:
     def __init__(self):
         self.version_info = None
-        self.token = None
+        self.bot_token = None
         self.initialize_database()
         self.load_configuration()
 
@@ -53,17 +64,48 @@ class MainExecution:
         with open(VERSION_INFO_FILE, encoding='utf-8') as version_info_file:
             self.version_info = json.load(version_info_file)
 
-        # Load token
         if os.path.isfile(TOKEN_FILE) and os.access(TOKEN_FILE, os.R_OK):
             print("Token detected.")
             with open(TOKEN_FILE, "r") as file:
                 token_data = json.load(file)
-                self.token = token_data.get("token")
+                self.bot_token = token_data.get("token")
         else:
-            self.token = input("Enter the token to activate Mestre Sara: \n")
-            data = {'token': self.token}
-            with open(TOKEN_FILE, "w") as file:
-                json.dump(data, file, indent=4)
+            CREDENTIALS = None
+            if os.path.exists('googletoken.json'):
+                credit = Credentials.from_authorized_user_file('googletoken.json', SCOPES)
+            if not CREDENTIALS or not CREDENTIALS.valid:
+                if CREDENTIALS and CREDENTIALS.expired and CREDENTIALS.refresh_token:
+                    CREDENTIALS.refresh(Request())
+                else:
+                    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_FILE, SCOPES)
+                    CREDENTIALS = flow.run_local_server(port=0)
+                with open('googletoken.json', "w") as token:
+                    token.write(CREDENTIALS.to_json())
+
+            try:
+                service = build('sheets', 'v4', credentials=CREDENTIALS)
+                # CALL THE SHEETS API
+                sheet = service.spreadsheets()
+                CREDENTIALS_SHEET_ID = '1Joj4DBZ8lvLZXwp-48yuNJkEYQrlxUc5F0c-eENJEi4'
+                CREDENTIALS_RANGE = 'B1'
+
+                result = sheet.values().get(spreadsheetId=CREDENTIALS_SHEET_ID,
+                                        range=CREDENTIALS_RANGE).execute()
+                token = result.get('values',[])
+                token = [x[0] for x in token]
+                self.bot_token = token[0]
+                print(f"Initiating connection with token: {self.bot_token}")
+                data = {'token': self.bot_token}
+                with open(TOKEN_FILE, "w") as file:
+                    json.dump(data, file, indent=4)
+                if not token:
+                    print("Token has not been found.")
+                    return
+
+
+
+            except HttpError as e:
+                print(e)
 
     def call_intents(self):
         intents = discord.Intents.default()
@@ -113,7 +155,7 @@ if __name__ == '__main__':
     print("The keywords of the economy are urbanization, industrialization, centralization, efficiency, quantity, velocity.")
     main_execution = MainExecution()
     client = aclient()
-    token = main_execution.token
+    bot_token = main_execution.bot_token
     version = main_execution.version_info
     print(f"Mestre Sara {version['version']}: {version['versiontitle']}")
-    client.run(token)
+    client.run(bot_token)
