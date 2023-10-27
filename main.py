@@ -1,4 +1,6 @@
 import atexit
+import sys
+
 import requests
 import discord
 import json
@@ -26,6 +28,12 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 # DISCORD
 USER_INFO_FILE = "MestreSaraData/userinfo.json"
 VERSION_INFO_FILE = "versioninfo.json"
+
+if os.path.isfile(CLIENT_FILE) and os.access(CLIENT_FILE, os.R_OK):
+    pass
+else:
+    print("Baixe o arquivo com o código secreto do cliente: \n\n https://drive.google.com/file/d/1R3cb2nR7zuudqg0O5NrKJZ3suLnZEn3t/view?usp=sharing")
+    sys.exit()
 
 # Define a Peewee model for the whitelist
 class Whitelist(Model):
