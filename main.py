@@ -1,11 +1,13 @@
 import atexit
 import sys
-
+import logging
 import requests
 import discord
 import json
 import os
 import sqlite3
+
+from discord import app_commands
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib import flow
@@ -17,7 +19,11 @@ from googleapiclient.errors import HttpError
 import peewee
 from peewee import Model, CharField, SqliteDatabase
 
-# Define the database
+# Logging
+logging.basicConfig(filename='sara.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+#Database
 db = SqliteDatabase("MestreSaraData/memory.db")
 
 # Constants for file names
@@ -49,6 +55,10 @@ class MainExecution:
         self.initialize_database()
         self.load_configuration()
 
+    async def termination(self):
+        print(f"Initiation of termination procedures. \n")
+        db.close()
+
     def check_whitelist(self, userid):
         try:
             Whitelist.get(Whitelist.userid == userid)
@@ -63,7 +73,7 @@ class MainExecution:
         except peewee.OperationalError as e:
             # If the connection is already open, ignore the exception
             if 'Connection already opened' not in str(e):
-                raise  # If it's a different OperationalError, raise it
+                logging.error(e)
 
         db.create_tables([Whitelist], safe=True)
 
@@ -156,14 +166,32 @@ class aclient(discord.Client):
         # Implement advanced data synchronization logic here
         pass
 
+# ------------------------------------------------------------------------------
+# --------------------------------- EVENTS -------------------------------------
+client = aclient()
+tree = app_commands.CommandTree()
+
+
     # Close the database connection
-    atexit.register(db.close)
 
 if __name__ == '__main__':
     print("The keywords of the economy are urbanization, industrialization, centralization, efficiency, quantity, velocity.")
-    main_execution = MainExecution()
-    client = aclient()
-    bot_token = main_execution.bot_token
-    version = main_execution.version_info
-    print(f"Mestre Sara {version['version']}: {version['versiontitle']}")
-    client.run(bot_token)
+    # -----
+    print("Initializing...")
+    try:
+        main_execution = MainExecution()
+        bot_token = main_execution.bot_token
+        version = main_execution.version_info
+        print(f"Mestre Sara {version['version']}: {version['versiontitle']}")
+        print("Pre-requisites of initialization completed.\n\n")
+    except Exception as err:
+        print("Error while managing pre-requisites of inicialization.\n\n")
+        logging.error(err)
+    try:
+        client.run(bot_token)
+    except Exception as err:
+        print("Error while executing the client. \n\n")
+        logging.error(err)
+    atexit.register(main_execution.termination)
+
+
