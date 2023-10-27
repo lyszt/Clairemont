@@ -1,9 +1,12 @@
-# Mestre Sara, taverneira profissional do Caiçara
+# Mestre Sara, taverneira profissional 
+[![forthebadge](readme/bwpython.svg)](https://forthebadge.com) 
+
 > *"Cause this is thriller, thriller night
 And no one's gonna save you from the beast about to strike
 You know it's thriller, thriller night"*
 
-![Taverna de RPG](https://assets.classicfm.com/2013/29/paganini-hits-the-pub-1374659219-view-0.jpg)
+[![forthebadge](https://forthebadge.com/images/featured/featured-gluten-free.svg)](https://forthebadge.com)
+![Taverna de RPG](https://c4.wallpaperflare.com/wallpaper/808/888/33/pointed-ears-fantasy-art-tavern-candles-wallpaper-preview.jpg)
 
 Este incrível bot, **Mestre Sara**, é a criação da equipe Lygon Xin, dedicada a proporcionar noites inesquecíveis de diversão em uma taverna virtual de RPG. Prepare-se para ficar bêbado, dançar como nunca e curtir com seus amigos, enquanto eventos e personagens aleatórios agitam a noite com aventuras surpreendentes.
 
