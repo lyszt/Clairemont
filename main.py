@@ -5,6 +5,7 @@ import sys
 import logging
 import requests
 import discord
+from discord.ext import tasks
 import json
 import os
 import sqlite3
@@ -167,16 +168,15 @@ class aclient(discord.Client):
         super().__init__(intents=MainExecution().call_intents())
         self.synced = False
 
-    async def change_presence_periodically(self):
-        while True:
-            await asyncio.sleep(600)  # Change the status every hour (you can adjust the time interval)
-            await client.change_presence(
-                status=discord.Status.dnd,
-                activity=discord.Activity(
-                    type=discord.ActivityType.listening,
-                    name=random.choice(lists.variacoes)
-                )
+    @tasks.loop(minutes=10)
+    async def change_presence_task(self):
+        await client.change_presence(
+            status=discord.Status.dnd,
+            activity=discord.Activity(
+                type=discord.ActivityType.listening,
+                name=random.choice(lists.variacoes)
             )
+        )
 
     async def on_ready(self):
         await self.wait_until_ready()
@@ -189,7 +189,7 @@ class aclient(discord.Client):
                 name=random.choice(lists.variacoes)
             )
         )
-        await self.change_presence_periodically()
+        self.change_presence_task.start()
 
     async def on_message(self, message):
         pass
