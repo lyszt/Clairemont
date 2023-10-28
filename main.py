@@ -11,6 +11,7 @@ import os
 import sqlite3
 import asyncio
 
+
 # INNER SCOPE
 import lists
 
