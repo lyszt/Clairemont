@@ -27,10 +27,7 @@ from peewee import Model, CharField, SqliteDatabase
 
 
 # SYSTEM FUNCTIONS AND DERIVATIVES
-def console_log(message, err=None):
-    print(f"[{datetime.date.today()} {datetime.datetime.now()}] [INFO    ] {message}")
-    if err:
-        print(err)
+from Methods.system_methods import console_log
 
 # Logging
 LOG_FILE = 'sara.log'
@@ -212,9 +209,9 @@ if __name__ == '__main__':
     # -----
     console_log("Initializing...")
     try:
-        main_execution = MainExecution()
-        bot_token = main_execution.bot_token
-        version = main_execution.version_info
+        Initialization = MainExecution()
+        bot_token = Initialization.bot_token
+        version = Initialization.version_info
         console_log(f"Mestre Sara {version['version']}: {version['versiontitle']}")
         console_log("Pre-requisites of initialization completed.\n\n")
     except Exception as err:
@@ -225,4 +222,4 @@ if __name__ == '__main__':
     except Exception as err:
         console_log("Error while executing the client. \n\n")
         logging.error(err)
-    atexit.register(main_execution.termination)
+    atexit.register(Initialization.termination)
