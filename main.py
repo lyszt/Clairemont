@@ -168,14 +168,16 @@ class aclient(discord.Client):
 
     @tasks.loop(minutes=10)
     async def change_presence_task(self):
-        await client.change_presence(
-            status=discord.Status.dnd,
-            activity=discord.Activity(
-                type=discord.ActivityType.listening,
-                name=random.choice(lists.variacoes)
+        try:
+            await client.change_presence(
+                status=discord.Status.dnd,
+                activity=discord.Activity(
+                    type=discord.ActivityType.listening,
+                    name=random.choice(lists.variacoes)
+                )
             )
-        )
-
+        except Exception as e:
+            console_log("Erro na mudança de presença", e)
     async def on_ready(self):
         await self.wait_until_ready()
         if not self.synced:
