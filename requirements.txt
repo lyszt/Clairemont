@@ -1,7 +1,10 @@
 discord
+numpy
+wikipedia
+sympy
+wordcloud
+matplotlib
+openai
+elevenlabs
 peewee
-requests
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
-PyNaCl
+PySimpleGUI

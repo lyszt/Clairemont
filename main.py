@@ -1,170 +1,89 @@
-import atexit
+# Standard Library Imports
+import ast
 import datetime
-import random
-import sys
+import re
+import inspect
 import logging
-import requests
-import discord
-from discord.ext import tasks
+import atexit
 import json
-import os
+import random
+import time
 import sqlite3
+import os
+import io
+import typing
 import asyncio
+import collections
 
+from wikipedia import DisambiguationError
 
-# INNER SCOPE
-import lists
-
-from discord import app_commands
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib import flow
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-
+if os.name == 'nt':
+    try:
+        import winsound
+    except Exception as e:
+        print(e)
+        pass
+# Third-Party Library Imports
 import peewee
 from peewee import Model, CharField, SqliteDatabase
+import openai
+import elevenlabs
+import discord
+import sympy
+from discord import app_commands
+from discord.app_commands import Choice
+from discord.ext import commands
+from discord.ext.commands import Bot
+from discord.ext import tasks
+import wikipedia
+import numpy as np
+from requests import get
+from sympy import *
+import statistics
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+from urllib import parse, request
 
-
-# SYSTEM FUNCTIONS AND DERIVATIVES
+# Project-Specific Imports
+from comandos import *
 from Methods.system_methods import console_log
+from Methods.initialization import Initialization, termination
+from Methods.database_models import *
+import lists
 
 # Logging
-LOG_FILE = 'sara.log'
+LOG_FILE = 'Sara.log'
 if os.path.isfile(LOG_FILE) and os.access(LOG_FILE, os.R_OK):
-    os.remove('sara.log')
-logging.basicConfig(filename='sara.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    os.remove('Sara.log')
+logging.basicConfig(filename='Sara.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Database
-db = SqliteDatabase("MestreSaraData/memory.db")
+# CONSTANTS
+DB = SqliteDatabase("MestreSaraData/memory.db")
+TEMP = "temp"
 
-# Constants for file names
-# -- GOOGLE API
-CLIENT_FILE = 'google.json'
-TOKEN_FILE = "token.json"
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-# DISCORD
-USER_INFO_FILE = "MestreSaraData/userinfo.json"
-VERSION_INFO_FILE = "versioninfo.json"
-
-if os.path.isfile(CLIENT_FILE) and os.access(CLIENT_FILE, os.R_OK):
-    pass
+if os.path.exists(TEMP) and os.path.isdir(TEMP):
+    for filename in os.listdir(TEMP):
+        file_path = os.path.join(TEMP, filename)
+        os.remove(file_path)
 else:
-    console_log(
-        "Baixe o arquivo com o código secreto do cliente: \n\n https://drive.google.com/file/d/1R3cb2nR7zuudqg0O5NrKJZ3suLnZEn3t/view?usp=sharing")
-    sys.exit()
+    os.mkdir(TEMP)
 
-
-# Define a Peewee model for the whitelist
-class Whitelist(Model):
-    userid = CharField(unique=True)
-
-    class Meta:
-        database = db
-
-
-class MainExecution:
-    def __init__(self):
-        self.version_info = None
-        self.bot_token = None
-        self.initialize_database()
-        self.load_configuration()
-
-    def termination(self):
-        console_log(f"Initiation of termination procedures. \n")
-        db.close()
-        console_log("Termination succeeded.")
-
-    def check_whitelist(self, userid):
-        try:
-            Whitelist.get(Whitelist.userid == userid)
-            console_log("Whitelisted user used a command.")
-            return True
-        except Whitelist.DoesNotExist:
-            return False
-
-    def initialize_database(self):
-        try:
-            db.connect()
-        except peewee.OperationalError as e:
-            # If the connection is already open, ignore the exception
-            if 'Connection already opened' not in str(e):
-                logging.error(e)
-
-        db.create_tables([Whitelist], safe=True)
-
-    def load_configuration(self):
-        # Load version information
-        with open(VERSION_INFO_FILE, encoding='utf-8') as version_info_file:
-            self.version_info = json.load(version_info_file)
-
-        if os.path.isfile(TOKEN_FILE) and os.access(TOKEN_FILE, os.R_OK):
-            console_log("Token detected.")
-            with open(TOKEN_FILE, "r") as file:
-                token_data = json.load(file)
-                self.bot_token = token_data.get("token")
-        else:
-            CREDENTIALS = None
-            if os.path.exists('googletoken.json'):
-                credit = Credentials.from_authorized_user_file('googletoken.json', SCOPES)
-            if not CREDENTIALS or not CREDENTIALS.valid:
-                if CREDENTIALS and CREDENTIALS.expired and CREDENTIALS.refresh_token:
-                    CREDENTIALS.refresh(Request())
-                else:
-                    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_FILE, SCOPES)
-                    CREDENTIALS = flow.run_local_server(port=0)
-                with open('googletoken.json', "w") as token:
-                    token.write(CREDENTIALS.to_json())
-
-            try:
-                service = build('sheets', 'v4', credentials=CREDENTIALS)
-                # CALL THE SHEETS API
-                sheet = service.spreadsheets()
-                CREDENTIALS_SHEET_ID = '1Joj4DBZ8lvLZXwp-48yuNJkEYQrlxUc5F0c-eENJEi4'
-                CREDENTIALS_RANGE = 'B1'
-
-                result = sheet.values().get(spreadsheetId=CREDENTIALS_SHEET_ID,
-                                            range=CREDENTIALS_RANGE).execute()
-                token = result.get('values', [])
-                token = [x[0] for x in token]
-                self.bot_token = token[0]
-                console_log(f"Initiating connection with token: {self.bot_token}")
-                data = {'token': self.bot_token}
-                with open(TOKEN_FILE, "w") as file:
-                    json.dump(data, file, indent=4)
-                if not token:
-                    console_log("Token has not been found.")
-                    return
-
-
-
-            except HttpError as e:
-                console_log(e)
-                logging.error(e)
-
-    def call_intents(self):
-        intents = discord.Intents.default()
-        intents.message_content = True
-        return intents
-
-    def default_embed(self, title, message):
-        embed = discord.Embed(
-            title=f"{title}",
-            description=f"{message}",
-            color=0x2ecc71
-        )
-        embed.set_author(
-            name="PLYG-7X42",
-            icon_url="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/9f1ed69b-9e98-4f78-acda-c95c6f4be159/db73tp3-8c5589a6-051c-4408-b244-f451c599b04d.jpg?token=YOUR_TOKEN_HERE"
-        )
-        return embed
+censura = Censura.select()
 
 
 class aclient(discord.Client):
+
     def __init__(self):
-        super().__init__(intents=MainExecution().call_intents())
+        intents = Initialization().call_intents()
+        super().__init__(intents=intents)
         self.synced = False
+
+    async def on_ready(self):
+        await self.wait_until_ready()
+        if not self.synced:
+            await tree.sync()
+        await self.change_presence(status=discord.Status.dnd, activity=(
+            discord.Activity(type=discord.ActivityType.listening, name=random.choice(lists.variacoes))))
 
     @tasks.loop(minutes=10)
     async def change_presence_task(self):
@@ -178,51 +97,250 @@ class aclient(discord.Client):
             )
         except Exception as e:
             console_log("Erro na mudança de presença", e)
-    async def on_ready(self):
-        await self.wait_until_ready()
-        if not self.synced:
-            await self.sync_data()
-        await self.change_presence(
-            status=discord.Status.dnd,
-            activity=discord.Activity(
-                type=discord.ActivityType.listening,
-                name=random.choice(lists.variacoes)
-            )
-        )
         self.change_presence_task.start()
 
     async def on_message(self, message):
         pass
 
-    async def sync_data(self):
-        # Implement advanced data synchronization logic here
-        pass
+# EVENTS
 
-
-# ------------------------------------------------------------------------------
-# --------------------------------- EVENTS -------------------------------------
 client = aclient()
 tree = app_commands.CommandTree(client)
 
-# Close the database connection
+async def lackPermissions(interaction: discord.Interaction):
+    console_log("Usuário tentou utilizar comandos sem permissão.")
+    await interaction.response.send_message("Desculpe, você não tem permissão para usar este comando.")
+
+
+@tree.command(name="presentear", description="Dê um presente de natal para um amigo!")
+async def self(interaction: discord.Interaction, mensagem: str, alvo: discord.User):
+        if alvo:
+            default_embed = Initialization().defaultembed
+            embedVar = default_embed(f"{interaction.user.display_name} acabou de presentar {alvo.display_name}! O que será o presente misterioso? 😨",f"Tem uma nota escrito **'{mensagem}'**")
+            embedVar.set_thumbnail(url=alvo.avatar)
+            await interaction.response.send_message(embed=embedVar)
+            url = "http://api.giphy.com/v1/gifs/search"
+            params = parse.urlencode({
+                "q": "lootbox",
+                "api_key": "8AkWlssazxQ5ohXq3MlOBo2FLPkFDexa",
+                "limit": "11"
+            })
+
+            with request.urlopen("".join((url, "?", params))) as response:
+                data = json.loads(response.read())
+                try:
+                    gif_choice = random.randint(1, 10)
+                    gif_url = data['data'][gif_choice]['images']['fixed_height']['url']
+                except IndexError:
+                    gif_url = data['data'][0]['images']['fixed_height']['url']
+            await interaction.channel.send(f"{gif_url}")
+            wikipedia.set_lang("pt")
+            while True:
+                try:
+                    item = wikipedia.random(1)
+                    presente = wikipedia.summary(item)
+                    break
+                except wikipedia.DisambiguationError:
+                    item = wikipedia.random(1)
+                    presente = wikipedia.summary(item)
+                    continue
+            try:
+                images = wikipedia.page(item).images
+                result_image = [image for image in images if str.lower(image).__contains__(f"{presente.split(' ')[0]}") and '.svg' not in image][0]
+            except IndexError:
+                params = parse.urlencode({
+                    "q": f"{presente.split(' ')[0]}",
+                    "api_key": "8AkWlssazxQ5ohXq3MlOBo2FLPkFDexa",
+                    "limit": "11"
+                })
+                url = "http://api.giphy.com/v1/gifs/search"
+                with request.urlopen("".join((url, "?", params))) as response:
+                    data = json.loads(response.read())
+                    try:
+                        gif_choice = random.randint(1, 10)
+                        result_image = data['data'][gif_choice]['images']['fixed_height']['url']
+                    except IndexError:
+                        result_image = data['data'][0]['images']['fixed_height']['url']
+                        if not result_image:
+                            result_image = "https://static.wikia.nocookie.net/sd-reborn/images/3/31/Obama.png/revision/latest/thumbnail/width/360/height/360?cb=20221021132625"
+
+            sumario = presente[:256]
+            embedVar = default_embed(f"Uau, {alvo.display_name}! É um {item} 🤯! Que presentasso!", f"{sumario}(...)")
+            embedVar.add_field(name="", value=f"<@{alvo.id}>! E aí, gostou?")
+            embedVar.set_image(url=result_image)
+            await interaction.channel.send(embed=embedVar)
+
+
+
+@tree.command(name="whitelist",
+              description="Adicionar usuário a lista de operações da Sara.",
+              )
+async def self(interaction: discord.Interaction, userid: str, add_remove: str):
+    id = int(userid)
+    whitelisted = Initialization().check_whitelist(interaction.user.id)
+    default_embed = Initialization().defaultembed
+    if whitelisted:
+        try:
+            if add_remove == 'add':
+                try:
+                    Whitelist.get(Whitelist.userid == userid)
+                    embed = default_embed(f"Não pude usar este comando.",
+                                          f"Usuário já está na Whitelist.")
+                    await interaction.response.send_message(embed=embed)
+                except Whitelist.DoesNotExist:
+                    user_entry = Whitelist.create(userid=userid)
+                    user_entry.save()
+                    console_log(f"Usuário {userid} adicionado na Whitelist.")
+                    embed = default_embed(f"Sucesso.", f"<@{userid}> adicionado na Whitelist.")
+                    await interaction.response.send_message(embed=embed)
+
+                except ValueError:
+                    embed = default_embed(f"Valor inválido.", f"Insira um id inteiro.")
+                    await interaction.response.send_message(embed=embed)
+                except Exception as e:
+                    console_log("Erro na adição na Whitelist:", e)
+
+            elif add_remove == 'remove':
+                userid = int(id)
+                try:
+                    condition = (Whitelist.get(Whitelist.userid == userid))
+                    remove_from_whitelist = Whitelist.delete().where(condition).execute()
+                    console_log(f"Usuário {userid} removido da Whitelist.")
+                    embed = default_embed(f"Sucesso.",
+                                          f"{remove_from_whitelist} usuário removido da Whitelist. ID: {userid}")
+                    await interaction.response.send_message(embed=embed)
+                except ValueError:
+                    embed = default_embed(f"Valor inválido.", f"Insira um id inteiro.")
+                    await interaction.response.send_message(embed=embed)
+                except Exception as e:
+                    console_log("Erro na remoção da Whitelist:", e)
+            else:
+                pass
+        except ValueError:
+            embedVar = default_embed(f"Valor inválido.", f"Insira um id inteiro.")
+            await interaction.response.send_message(embed=embedVar)
+        except Exception as e:
+            console_log("Erro na remoção da Whitelist:", e)
+    else:
+        await lackPermissions(interaction)
+
+
+@tree.command(name="censurar", description="Censurar palavras para uso do bot.")
+async def self(interaction: discord.Interaction, palavra: str):
+    palavra = palavra.lower()
+    palavras_censuradas = [word.strip() for word in palavra.split(",")]
+
+    whitelisted = Initialization().check_whitelist(interaction.user.id)
+    default_embed = Initialization().defaultembed
+
+    if whitelisted:
+        try:
+            with db.atomic():
+                # Insert the censored words into the Censura table
+                for word in palavras_censuradas:
+                    Censura.create(palavra=word)
+
+            console_log(f"{len(palavras_censuradas)} palavras censuradas.")
+            await interaction.response.send_message("Censurando...")
+            await interaction.edit_original_response(
+                embed=default_embed("Censurado com sucesso.", f"{len(palavras_censuradas)} palavras censuradas."))
+        except Exception as e:
+            console_log("Erro detectado:", e)
+
+@tree.command(name="interpretarnpc",
+              description="Interprete um personagem.")
+async def self(interaction: discord.Interaction, nomenpc: str, titulo: typing.Optional[str],
+               image: typing.Optional[str], dialogo: str, ):
+    embed = discord.Embed(title=f"", color=15277667, description=f"{dialogo}",
+                          timestamp=datetime.datetime.now())
+    imagem = (f"{image}" if image else "https://i.pinimg.com/564x/ef/d9/46/efd946986bfc8ab131353d84fd6ce538.jpg")
+    if titulo:
+        embed.set_author(name=f"{nomenpc}, {titulo} diz:", icon_url=imagem)
+    else:
+        embed.set_author(name=f"{nomenpc} diz:", icon_url=imagem)
+    await interaction.response.send_message(embed=embed)
+
+
+@tree.command(name="citacao",
+              description="Citação da última mensagem enviada.")
+async def self(interaction: discord.Interaction):
+    message = [message async for message in interaction.channel.history(limit=3)]
+    dialogo = message[0].content
+    usuario = message[0].author.id
+    usuarionome = message[0].author.name
+    imagem = message[0].author.avatar
+    embed = discord.Embed(title=f'''"{dialogo}"''', color=10070709, description=f"")
+    embed.set_image(url=imagem)
+    embed.add_field(name="", value=f"<@{usuario}>, {datetime.datetime.today().year}")
+    await interaction.response.send_message(embed=embed)
+
+
+@tree.command(name="meme",
+              description="Meme.")
+async def self(interaction: discord.Interaction):
+    meme = get("https://meme-api.com/gimme").text
+    data = json.loads(meme, )
+    embed = discord.Embed(title=f"{data['title']}", color=discord.Color.random()).set_image(
+        url=f"{data['url']}")
+    await interaction.response.send_message(embed=embed)
+
+@tree.command(name="talk", description="Converse com a Sara.")
+async def self(interaction: discord.Interaction, dialogue: str, voice: typing.Optional[bool] = False):
+    async def sendMessage(message):
+        embed = discord.Embed(title=f"{dialogue if len(dialogue) < 256 else 'Questão analisada...'}",
+                              color=15277667,
+                              description=f"Sara responde: \n\n {message}",
+                              )
+        embed.set_image(url="https://i.pinimg.com/564x/9a/a3/0f/9aa30f656fab84d1e03e87b8f5d25451.jpg")
+        await interaction.edit_original_response(embed=embed)
+
+    whitelisted = Initialization().check_whitelist(interaction.user.id)
+    if whitelisted:
+        await interaction.response.send_message("Gerando...")
+        completion = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system",
+                 "content": "Você é Sara, uma taverneira do Caiçara. Você é uma pessoa animada, boa, sensível e tem muitos hobbies. Você ama pessoas. Responda com naturalidade."},
+                {"role": "user", "content": dialogue}
+            ]
+
+        )
+        await sendMessage(completion.choices[0].message.content)
+        if voice:
+            audio = elevenlabs.generate(
+                text=completion.choices[0].message.content,
+                voice="Freya",
+                model="eleven_multilingual_v1"
+            )
+            elevenlabs.save(audio, "temp/speech.mp3")
+            await interaction.channel.send(file=discord.File("temp/speech.mp3"))
+
+
+
+    else:
+        await lackPermissions(interaction)
+
 
 if __name__ == '__main__':
     console_log(
-        "The keywords of the economy are urbanization, industrialization, centralization, efficiency, quantity, velocity.")
-    # -----
+        "The key words of economics are urbanization, industrialization, centralization, efficiency, quantity, speed.")
     console_log("Initializing...")
     try:
-        Initialization = MainExecution()
-        bot_token = Initialization.bot_token
-        version = Initialization.version_info
-        console_log(f"Mestre Sara {version['version']}: {version['versiontitle']}")
-        console_log("Pre-requisites of initialization completed.\n\n")
+        bot_init = Initialization()
+        bot_init.load_configuration()
+        bot_token = bot_init.bot_token
+        version = bot_init.version_info
+        console_log(f"Sara {version.get('version')}: {version.get('versiontitle')}")
+        console_log("Pre-requisites of initialization completed.")
     except Exception as err:
-        console_log("Error while managing pre-requisites of inicialization.\n\n")
+        console_log("Error while managing pre-requisites of inicialization.", err)
         logging.error(err)
+        raise
     try:
         client.run(bot_token)
     except Exception as err:
-        console_log("Error while executing the client. \n\n")
+        console_log("Error while executing the client.", err)
         logging.error(err)
-    atexit.register(Initialization.termination)
+        raise
+    atexit.register(termination)
