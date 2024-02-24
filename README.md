@@ -1,29 +1,17 @@
-# Sara: CATACLYST
-## Military, Extermination, and Intelligence in Nationalized Discord Servers
+# Mestre Sara, taverneira profissional 
+[![forthebadge](readme/bwpython.svg)](https://forthebadge.com) 
 
-> *"The key words of violent economics are urbanization, industrialization, centralization, efficiency, quantity, speed."*
+> *"Cause this is thriller, thriller night
+And no one's gonna save you from the beast about to strike
+You know it's thriller, thriller night"*
 
-![2B from Nier](https://i.pinimg.com/564x/08/ae/03/08ae035f16b6c3971f0c998022371731.jpg)
+[![forthebadge](https://forthebadge.com/images/featured/featured-gluten-free.svg)](https://forthebadge.com)
+![Taverna de RPG](https://c4.wallpaperflare.com/wallpaper/808/888/33/pointed-ears-fantasy-art-tavern-candles-wallpaper-preview.jpg)
 
-This remarkable bot, **Sara - Type C**, is the brainchild of the illustrious empire of Lygon Xin, renowned as the nation of Kaisara. Originally designed from the Model of Ryujin, with the sole purpose of obliterating Jambonia, Sara has since evolved into an essential utilitarian tool and a stalwart guardian of server security.
+Este incrível bot, **Mestre Sara**, é a criação da equipe Lygon Xin, dedicada a proporcionar noites inesquecíveis de diversão em uma taverna virtual de RPG. Prepare-se para ficar bêbado, dançar como nunca e curtir com seus amigos, enquanto eventos e personagens aleatórios agitam a noite com aventuras surpreendentes.
 
-Born from the crucible of war, Cataclyst is a relentless machine of destruction. Its initial purpose was to wage war, and it has evolved into an even more fearsome instrument of chaos. This relentless automaton not only defends the empire but actively seeks out and obliterates its enemies. With enhanced capabilities in espionage and warfare machinery, Cataclyst is the embodiment of ruthless aggression and the empire's most formidable weapon, ushering in a new era of conquest and domination.
-### Features
-- **Military Power**: Born from the crucible of conflict, Sara's capabilities in military strategy and execution are unparalleled.
-- **Extermination Expertise**: Its advanced algorithms ensure the swift and efficient eradication of any threats to your server's integrity.
-- **Intelligence Gathering**: Sara excels in covert operations, collecting vital information to bolster your server's defenses.
-- **AI Assistant**: With a loyal and engaging personality, Sara's extensive database allows her to answer questions and address members directly, enhancing the server's communication.
-- **Utilitarian Efficiency**: Beyond its origins, Sara now serves as a multifaceted utility, streamlining tasks and enhancing server management.
-
-[![forthebadge](https://forthebadge.com/images/featured/featured-oooo-kill-em.svg)](https://forthebadge.com)
-
-
-### Contributing
-We welcome contributions from the community to further enhance Sara's capabilities. If you're interested in contributing, please follow our [contribution guidelines](link_to_contrib_guidelines).
-
-![2B from Nier](readme/niergif.gif)
-
----
-*Sara - Type D is a creation of the Kaisaran Empire, dedicated to the pursuit of excellence in technology and security.*
-
-[![forthebadge](https://forthebadge.com/images/featured/featured-powered-by-electricity.svg)](https://forthebadge.com)
+### Características
+- **Avaliação de Dança**: Mestre Sara avaliará suas habilidades de dança e lhe dirá o quão bem você está se saindo na pista.
+- **Ficar Bêbado e Curtir**: A principal funcionalidade da Mestre Sara é transformar sua noite em uma festa épica. Beba com moderação ou arrisque-se a passar mal ou desmaiar.
+- **Eventos Aleatórios**: Prepare-se para eventos inesperados que podem iniciar histórias e aventuras dentro da taverna.
+- **Comunicação Amigável**: Mestre Sara facilita conversas amigáveis e interações entre os membros do servidor, criando um ambiente confortável e acolhedor.
