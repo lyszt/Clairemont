@@ -19,19 +19,15 @@ if os.name == 'nt':
         pass# Third-Party Library Imports
 import peewee
 from peewee import Model, CharField, SqliteDatabase
+import google.generativeai as genai
 import openai
 import elevenlabs
 import discord
-import PySimpleGUI as sg
+import easygui
 # PROJECT IMPORTS
 # Project-Specific Imports
 from Methods.system_methods import console_log
 from Methods.database_models import *
-
-
-
-
-sg.theme('DarkPurple2')
 
 # CONSTANTS
 CLIENT_FILE = 'google.json'
@@ -53,6 +49,7 @@ class Initialization:
         self.bot_token = None
         self.ai_token = None
         self.voice_token = None
+        self.gemini_token = None
         # Initialization procedures
         self.intents = None
         self.version_title = None
@@ -72,22 +69,41 @@ class Initialization:
         db.create_tables([Whitelist, Censura], safe=True)
 
     def load_configuration(self):
+        LOG_FILE = '../Sara.log'
+        TOKEN_FILE = "token.json"
+
+        if os.path.isfile(LOG_FILE) and os.access(LOG_FILE, os.R_OK):
+            os.remove('Sara.log')
+        logging.basicConfig(filename='Sara.log', level=logging.INFO,
+                            format='%(asctime)s - %(levelname)s - %(message)s', force=True)
+
         with open(VERSION_INFO_FILE, encoding='utf-8') as version_info_file:
             self.version_info = json.load(version_info_file)
 
-        if os.path.isfile("token.json") and os.access("token.json", os.R_OK):
+        if os.path.isfile(TOKEN_FILE) and os.access(TOKEN_FILE, os.R_OK):
             console_log("Token detected.")
             with open(TOKEN_FILE, "r") as file:
                 token_data = json.load(file)
                 self.bot_token = token_data.get("token")
                 self.ai_token = token_data.get("openaitoken")
-                openai.api_key = self.ai_token
+                self.gemini_token = token_data.get("geminitoken")
                 self.voice_token = token_data.get("elevenlabsapikey")
+
                 elevenlabs.set_api_key(self.voice_token)
+                genai.configure(api_key=self.gemini_token)
+                openai.api_key = self.ai_token
         else:
-            token = input("Info rm the token to activate Sara. \n")
-            openai.api_key = input("Inform the OpenAI token. This one is necessary for talking operations.\n")
-            elevenlabs_token = input("Insert token for voice application. ElevenLabs. \n")
+            logging.warning("[Initializing...          ] Could not find Token...")
+            title = "Insight configuration processus"
+            msg = "Insert your service tokens."
+            fieldNames = ["Discord", "OpenAI", "ElevenLabs", "Gemini"]
+            fieldValues = []  # we start with blanks for the values
+            fieldValues = easygui.multenterbox(msg, title, fieldNames)
+            token = fieldValues[0]
+            openaitoken = fieldValues[1]
+            elevenlabs_token = fieldValues[2]
+            gemini_token = fieldValues[2]
+
             try:
                 elevenlabs.set_api_key(elevenlabs_token)
             except Exception as e:
@@ -96,7 +112,8 @@ class Initialization:
             data = {
                 'token': token,
                 'openaitoken': openai.api_key,
-                "elevenlabsapikey": elevenlabs_token
+                "elevenlabsapikey": elevenlabs_token,
+                'geminitoken': gemini_token
             }
             with open("token.json", "w") as file:
                 json.dump(data, file, indent=4)
@@ -135,6 +152,6 @@ class Initialization:
     def defaultembed(self, title, message):
 
         self.embed = discord.Embed(title=f"{title}", description=f"{message}", color=0x2ecc71)
-        self.embed.set_author(name="PLYG-7X42",
-                              icon_url="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/9f1ed69b-9e98-4f78-acda-c95c6f4be159/db73tp3-8c5589a6-051c-4408-b244-f451c599b04d.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzlmMWVkNjliLTllOTgtNGY3OC1hY2RhLWM5NWM2ZjRiZTE1OVwvZGI3M3RwMy04YzU1ODlhNi0wNTFjLTQ0MDgtYjI0NC1mNDUxYzU5OWIwNGQuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.7X4JjtqAwnetH9HC9f4sl3kcik8VCFCE5nr1MGB607M")
+        self.embed.set_author(name="Sara Delacroix",
+                              icon_url="https://i.pinimg.com/564x/22/76/e8/2276e87294b4ab7a31ac5a60c0c12734.jpg")
         return self.embed
