@@ -72,7 +72,7 @@ class BotService:
                     await execute_by_code(interaction, self, command_code)
                 else:
                     logging.info("Usuário tentou utilizar comandos sem permissão.")
-                    self.interaction.channel.send("Desculpe, você não tem permissão para usar este comando.")
+                    await self.interaction.channel.send("Desculpe, você não tem permissão para usar este comando.")
             else:
                 await execute_by_code(interaction, self, command_code)
         except Exception as err:
