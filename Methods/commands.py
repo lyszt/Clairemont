@@ -161,7 +161,7 @@ class BotService:
             async def sendMessage(message, url):
                 embed = discord.Embed(title=f"{dialogue if len(dialogue) < 256 else 'Questão analisada...'}",
                                       color=15277667,
-                                      description=f"Sara responde: \n\n {message}",
+                                      description=f"✨ Sara responde: ✨ \n\n {message}",
                                       )
 
                 if image_generation:
