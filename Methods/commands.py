@@ -167,7 +167,7 @@ class BotService:
                 embed.set_image(url="attachment://image.jpg")
                 await interaction.edit_original_response(file=image_file, embed=embed)
 
-            embed = self.default_embed("Pensando...","Espera só um minuto :)")
+            embed = self.default_embed("Pensando...","✨ Espera só um minuto, estou pensando em uma resposta ✨")
             await interaction.response.send_message(embed=embed)
             logging.info("[GENERATING GPT 3.5 TEXT    ]")
             response = GenerateText().run(dialogue)

@@ -11,3 +11,4 @@ PySimpleGUI
 transformers
 torch
 diffusers
+accelerate

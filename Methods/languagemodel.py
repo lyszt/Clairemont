@@ -23,11 +23,12 @@ class GenerateText:
     def gen_image(self, entry):
         description = openai.chat.completions.create(
             model="gpt-3.5-turbo",
+            max_tokens= 32,
             messages=[
                 {"role": "system",
                  "content": "Write in english."},
                 {"role": "user", "content": f""
-                                            f"Based on the message '{entry}', make a short description of the scene. "
+                                            f"Based on the message '{entry}', make a very short description of the scene. "
                                             f"A blonde girl is there as well, so remember to mention."
                                             f"in detail for Stable Diffusion."}
             ]
