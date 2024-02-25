@@ -168,8 +168,8 @@ async def self(interaction: discord.Interaction, userid: str, add_remove: str):
         await lackPermissions(interaction)
 
 @tree.command(name="talk", description="Converse com a Sara.")
-async def self(interaction: discord.Interaction, dialogue: str, voice: typing.Optional[bool] = False):
-    await BotService().run(interaction,True, "talk_command", [dialogue, voice])
+async def self(interaction: discord.Interaction, dialogue: str, voice: typing.Optional[bool] = False, image_generation: typing.Optional[bool] = False):
+    await BotService().run(interaction,True, "talk_command", [dialogue, voice, image_generation])
 
 if __name__ == '__main__':
     console_log(

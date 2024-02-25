@@ -1,10 +1,12 @@
 import math
 import os
+
+import torch
 from torch import autocast
 from diffusers import StableDiffusionPipeline
 
 #Stable Diffusion 1.5
-MODEL_PATH = "runwayml/stable-diffusion-v1-5"
+MODEL_PATH = "CompVis/stable-diffusion-v1-4"
 SAVE_PATH = "../temp"
 
 if not os.path.exists(SAVE_PATH):
@@ -15,10 +17,14 @@ import openai
 
 class GenerateText:
 
-    def run(self, entry):
+    def run(self, entry, image_generation):
         prompt = self.gen_text(entry)
-        self.gen_image(prompt)
-        return prompt
+        if image_generation:
+            url = self.gen_image(prompt)
+            return prompt, url
+        else:
+            url = None
+            return prompt, url
 
     def gen_image(self, entry):
         description = openai.chat.completions.create(
@@ -35,12 +41,14 @@ class GenerateText:
 
         )
         description = f"Blonde girl, anime style, {description.choices[0].message.content}"
-        pipe = StableDiffusionPipeline.from_pretrained(MODEL_PATH)
-        pipe = pipe.to('cuda')
-        with autocast('cuda'):
-            image = pipe(description).images[0]
-        image_path = f"{SAVE_PATH}/stablediffusion.jpg"
-        image.save(image_path)
+        response = openai.images.generate(
+            model="dall-e-3",
+            prompt=description,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+        return response.data[0].url
     def gen_text(self, entry):
         completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",

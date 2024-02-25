@@ -157,21 +157,25 @@ class BotService:
         async def talk_command(self, interaction):
             dialogue = BotService.arguments[0]
             voice = BotService.arguments[1]
-            async def sendMessage(message):
+            image_generation = BotService.arguments[2]
+            async def sendMessage(message, url):
                 embed = discord.Embed(title=f"{dialogue if len(dialogue) < 256 else 'Questão analisada...'}",
                                       color=15277667,
                                       description=f"Sara responde: \n\n {message}",
                                       )
 
-                image_file = discord.File("../temp/stablediffusion.jpg", filename="image.jpg")
-                embed.set_image(url="attachment://image.jpg")
-                await interaction.edit_original_response(file=image_file, embed=embed)
+                if image_generation:
+                    embed.set_image(url=url)
+                    await interaction.edit_original_response(embed=embed)
+                else:
+                    embed.set_image(url="https://i.imgur.com/Bun3lKI.jpeg")
+                    await interaction.edit_original_response(embed=embed)
 
             embed = self.default_embed("Pensando...","✨ Espera só um minuto, estou pensando em uma resposta ✨")
             await interaction.response.send_message(embed=embed)
             logging.info("[GENERATING GPT 3.5 TEXT    ]")
-            response = GenerateText().run(dialogue)
-            await sendMessage(response)
+            response = GenerateText().run(dialogue, image_generation)
+            await sendMessage(response[0], response[1])
             if voice:
                 audio = elevenlabs.generate(
                     text=response,
