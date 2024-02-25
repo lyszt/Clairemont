@@ -49,7 +49,6 @@ class Initialization:
         self.bot_token = None
         self.ai_token = None
         self.voice_token = None
-        self.gemini_token = None
         # Initialization procedures
         self.intents = None
         self.version_title = None
@@ -86,23 +85,20 @@ class Initialization:
                 token_data = json.load(file)
                 self.bot_token = token_data.get("token")
                 self.ai_token = token_data.get("openaitoken")
-                self.gemini_token = token_data.get("geminitoken")
                 self.voice_token = token_data.get("elevenlabsapikey")
 
                 elevenlabs.set_api_key(self.voice_token)
-                genai.configure(api_key=self.gemini_token)
                 openai.api_key = self.ai_token
         else:
             logging.warning("[Initializing...          ] Could not find Token...")
             title = "Insight configuration processus"
             msg = "Insert your service tokens."
-            fieldNames = ["Discord", "OpenAI", "ElevenLabs", "Gemini"]
+            fieldNames = ["Discord", "OpenAI", "ElevenLabs"]
             fieldValues = []  # we start with blanks for the values
             fieldValues = easygui.multenterbox(msg, title, fieldNames)
             token = fieldValues[0]
             openaitoken = fieldValues[1]
             elevenlabs_token = fieldValues[2]
-            gemini_token = fieldValues[2]
 
             try:
                 elevenlabs.set_api_key(elevenlabs_token)
@@ -111,9 +107,8 @@ class Initialization:
                 logging.error(e)
             data = {
                 'token': token,
-                'openaitoken': openai.api_key,
+                'openaitoken': openaitoken,
                 "elevenlabsapikey": elevenlabs_token,
-                'geminitoken': gemini_token
             }
             with open("token.json", "w") as file:
                 json.dump(data, file, indent=4)

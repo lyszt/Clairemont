@@ -76,8 +76,8 @@ class BotService:
             else:
                 await execute_by_code(interaction, self, command_code)
         except Exception as err:
-            logging.error(f"[ERROR IN COMMAND    ]", err)
-            print(err)
+                logging.error(f"[ERROR IN COMMAND    ]", err)
+                print(err)
     async def run_permcheck(self, author):
         target = int(author)
         whitelisted = Initialization().check_whitelist(self.interaction.user.id)
@@ -165,7 +165,9 @@ class BotService:
                 embed.set_image(url="https://i.pinimg.com/564x/9a/a3/0f/9aa30f656fab84d1e03e87b8f5d25451.jpg")
                 await interaction.edit_original_response(embed=embed)
 
-            await interaction.response.send_message("Gerando...")
+            embed = self.default_embed("Pensando...","Espera só um minuto :)")
+            await interaction.response.send_message(embed=embed)
+            logging.info("[GENERATING GPT 3.5 TEXT    ]")
             response = GenerateText().talk(dialogue)
             await sendMessage(response)
             if voice:

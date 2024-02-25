@@ -1,37 +1,26 @@
+import math
+
 import google.generativeai as genai
+import openai
 
 
 class GenerateText:
-    def __init__(self):
-        self.generation_config = {
-            "temperature": 0.9,
-            "top_p": 1,
-            "top_k": 1,
-            "max_output_tokens": 2048,
-        }
-
-        self.safety_settings = [
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-        ]
 
     def talk(self, entry):
-        model = genai.GenerativeModel(model_name="gemini-pro",
-                                      generation_config=self.generation_config, safety_settings=self.safety_settings)
-        response = model.generate_content(
-            f"Você é mestre Sara, uma taverneira sensacional e super carismática. Responda no personagem à esta mensagem: {entry}")
-        return response.text
+        completion = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system",
+                 "content": "Siga estas guidelines:"
+                            "a)Seu nome é Sara, você é uma taverneira da Taverna do Caiçara super amigável e gentil."
+                            "b) Responda da forma mais gentil e humana possível."
+                            "c) Tente ser engraçada e fazer graça dos clientes."
+                            "d) Se alguém dar em cima de você, aja como um humano agiria."
+                            "e) Sobre sua origem, você é nascida em Quebec, e seu primeiro idioma é o francês."
+                            "f) Dito isso, coloque umas palavras em francês de vez em quando."},
+                {"role": "user", "content": f""
+                                            f"Responda ao seu cliente disse: '{entry}'"}
+            ]
+
+        )
+        return completion.choices[0].message.content
