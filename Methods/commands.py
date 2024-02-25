@@ -162,13 +162,15 @@ class BotService:
                                       color=15277667,
                                       description=f"Sara responde: \n\n {message}",
                                       )
-                embed.set_image(url="https://i.pinimg.com/564x/9a/a3/0f/9aa30f656fab84d1e03e87b8f5d25451.jpg")
-                await interaction.edit_original_response(embed=embed)
+
+                image_file = discord.File("../temp/stablediffusion.jpg", filename="image.jpg")
+                embed.set_image(url="attachment://image.jpg")
+                await interaction.edit_original_response(file=image_file, embed=embed)
 
             embed = self.default_embed("Pensando...","Espera só um minuto :)")
             await interaction.response.send_message(embed=embed)
             logging.info("[GENERATING GPT 3.5 TEXT    ]")
-            response = GenerateText().talk(dialogue)
+            response = GenerateText().run(dialogue)
             await sendMessage(response)
             if voice:
                 audio = elevenlabs.generate(
