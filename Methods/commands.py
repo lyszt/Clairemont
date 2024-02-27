@@ -6,6 +6,7 @@ import logging
 import atexit
 import json
 import random
+import threading
 import time
 import sqlite3
 import os
@@ -177,10 +178,11 @@ class BotService:
             response = GenerateText().run(dialogue, image_generation)
             await sendMessage(response[0], response[1])
             if voice:
-                audio = elevenlabs.generate(
-                    text=response,
-                    voice="Freya",
-                    model="eleven_multilingual_v1"
-                )
-                elevenlabs.save(audio, "temp/speech.mp3")
-                await interaction.channel.send(file=discord.File("temp/speech.mp3"))
+                Generate = GenerateText().gen_audio(response[0])
+                Production = threading.Thread(target=Generate)
+                Production.start()
+                Production.join()
+                def WaitFFS():
+                    time.sleep(1)
+                threading.Thread(target=WaitFFS).start()
+                await GenerateText().send_audio(interaction)

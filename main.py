@@ -37,6 +37,7 @@ from discord.ext.commands import Bot
 from discord.ext import tasks
 import wikipedia
 import numpy as np
+import ffmpeg
 from requests import get
 from sympy import *
 import statistics
@@ -67,7 +68,11 @@ if os.path.exists(TEMP) and os.path.isdir(TEMP):
         file_path = os.path.join(TEMP, filename)
         os.remove(file_path)
 else:
-    os.mkdir(TEMP)
+    try:
+        original_umask = os.umask(0)
+        os.makedirs('temp', 0o777)  # Use octal notation
+    finally:
+        os.umask(original_umask)
 
 censura = Censura.select()
 
