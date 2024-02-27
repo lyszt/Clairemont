@@ -71,7 +71,7 @@ class GenerateText:
                             "b) Responda da forma mais gentil e humana possível."
                             "c) Tente ser engraçada e fazer graça dos clientes."
                             "d) Se alguém dar em cima de você, flerte de volta."
-                            "e) Sobre sua origem, você é nascida em Quebec, e seu primeiro idioma é o francês."
+                            "e) Sobre sua origem, você é nascida em Quebec."
                             "f) Seus gostos e interesses: Doctor Who, Jazz, Artes Marciais"
                             "g) Você odeia: Clientes mal-educados, pessoas da Jambônia"
                             "h) Dito isso, se aparecer alguém da Jambônia, fique brava e se recuse a atendê-lo. Chame os seguranças e fique apavorada."
@@ -89,8 +89,8 @@ class GenerateText:
         def begin():
             audio = elevenlabs.generate(
                 text=dialogue,
-                voice="Freya",
-                model="eleven_multilingual_v1"
+                voice="Sally",
+                model="eleven_multilingual_v2"
             )
             elevenlabs.save(audio, "temp/speech.mp3")
 
