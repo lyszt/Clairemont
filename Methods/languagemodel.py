@@ -5,11 +5,15 @@ import threading
 import discord
 import elevenlabs
 import pydub
+import requests
+
 import ffmpeg
 
 import torch
 from torch import autocast
 from diffusers import StableDiffusionPipeline
+
+from Methods.system_methods import console_log
 
 # Stable Diffusion 1.5
 MODEL_PATH = "CompVis/stable-diffusion-v1-4"
@@ -22,7 +26,6 @@ pydub.AudioSegment.ffmpeg = FFMPEG_ABSOLUTE_PATH
 
 if not os.path.exists(SAVE_PATH):
     os.mkdir(SAVE_PATH)
-import google.generativeai as genai
 import openai
 
 
@@ -63,20 +66,17 @@ class GenerateText:
 
     def gen_text(self, entry):
         completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {"role": "system",
-                 "content": "Siga estas guidelines:"
-                            "a)Seu nome é Sara, você é uma taverneira da Taverna do Caiçara super amigável e gentil."
-                            "b) Responda da forma mais gentil e humana possível."
-                            "c) Tente ser engraçada e fazer graça dos clientes."
-                            "d) Se alguém dar em cima de você, flerte de volta."
-                            "e) Sobre sua origem, você é nascida em Quebec."
-                            "f) Seus gostos e interesses: Doctor Who, Jazz, Artes Marciais"
-                            "g) Você odeia: Clientes mal-educados, pessoas da Jambônia"
-                            "h) Dito isso, se aparecer alguém da Jambônia, fique brava e se recuse a atendê-lo. Chame os seguranças e fique apavorada."
-                            "i) Demonstre emoções humanas. Fique brava, triste, etc dependendo do contexto."
-                            "j) Não pergunte se precisa de mais alguma coisa."},
+                 "content": "Suivez ces guidelines:"
+                            "a) Ton nom est Sara, une célébrité et pop star qui a pris sa retraite et a créé sa propre taverne."
+                             "b) Vous êtes irresponsable, une fêtarde, vous criez beaucoup et vous êtes tellement "
+                            "irresponsable que votre entreprise est un désastre. Soyez pathetique."
+                             "c) Soyez maladroit et gâchez vos phrases. Soit sensible."
+                             "d) Si quelqu'un vous drague, flirtez en retour, soyez réceptif et acceptez les rendez-vous."
+                             "e) Soyez attentif et susceptible. Détaillez votre affection.."
+                             "g) Montrer des émotions humaines. Soyez en colère, triste, etc. selon le contexte."},
                 {"role": "user", "content": f""
                                             f"Responda ao seu cliente disse: '{entry}'"}
             ]
@@ -84,15 +84,42 @@ class GenerateText:
         )
         return completion.choices[0].message.content
 
-    def gen_audio(self, dialogue):
+    def gen_audio(self, dialogue, key):
 
         def begin():
-            audio = elevenlabs.generate(
-                text=dialogue,
-                voice="Sally",
-                model="eleven_multilingual_v2"
-            )
-            elevenlabs.save(audio, "temp/speech.mp3")
+            CHUNK_SIZE = 1024  # Size of chunks to read/write at a time
+            XI_API_KEY = f"{key}"  # Your API key for authentication
+            VOICE_ID = "XrExE9yKIg1WjnnlVkGX"  # ID of the voice model to use
+            TEXT_TO_SPEAK = f"{dialogue}"  # Text you want to convert to speech
+            OUTPUT_PATH = "temp/speech.mp3"  # Path to save the output audio file
+            
+            tts_url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}/stream"
+            headers = {
+                "Accept": "application/json",
+                "xi-api-key": XI_API_KEY
+            }
+            data = {
+                "text": TEXT_TO_SPEAK,
+                "model_id": "eleven_multilingual_v1",
+                "voice_settings": {
+                    "stability": 0.15,
+                    "similarity_boost": 0.6,
+                    "style": 0.0,
+                    "use_speaker_boost": True
+                }
+            }
+            response = requests.post(tts_url, headers=headers, json=data, stream=True)
+            if response.ok:
+                # Open the output file in write-binary mode
+                with open(OUTPUT_PATH, "wb") as f:
+                    # Read the response in chunks and write to the file
+                    for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                        f.write(chunk)
+                # Inform the user of success
+                console_log("Audio stream saved successfully.")
+            else:
+                # Print the error message if the request was not successful
+                console_log(response.text)
 
         def mix():
             speech = pydub.AudioSegment.from_mp3("temp/speech.mp3")

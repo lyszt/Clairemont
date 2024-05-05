@@ -19,7 +19,6 @@ if os.name == 'nt':
         pass# Third-Party Library Imports
 import peewee
 from peewee import Model, CharField, SqliteDatabase
-import google.generativeai as genai
 import openai
 import elevenlabs
 import discord
@@ -28,12 +27,9 @@ import easygui
 # Project-Specific Imports
 from Methods.system_methods import console_log
 from Methods.database_models import *
+from Methods.get_key import AcquireKey
 
 # CONSTANTS
-CLIENT_FILE = 'google.json'
-TOKEN_FILE = "token.json"
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-
 USER_INFO_FILE = "MestreSaraData/userinfo.json"
 VERSION_INFO_FILE = "versioninfo.json"
 
@@ -46,9 +42,10 @@ def termination():
 
 class Initialization:
     def __init__(self):
-        self.bot_token = None
-        self.ai_token = None
-        self.voice_token = None
+        keys = AcquireKey().get_key()
+        self.bot_token = keys["bot_token"]
+        self.ai_token = keys["ai_token"]
+        self.voice_token = keys["voice_token"]
         # Initialization procedures
         self.intents = None
         self.version_title = None
@@ -81,14 +78,7 @@ class Initialization:
 
         if os.path.isfile(TOKEN_FILE) and os.access(TOKEN_FILE, os.R_OK):
             console_log("Token detected.")
-            with open(TOKEN_FILE, "r") as file:
-                token_data = json.load(file)
-                self.bot_token = token_data.get("token")
-                self.ai_token = token_data.get("openaitoken")
-                self.voice_token = token_data.get("elevenlabsapikey")
-
-                elevenlabs.set_api_key(self.voice_token)
-                openai.api_key = self.ai_token
+            openai.api_key = self.ai_token
         else:
             logging.warning("[Initializing...          ] Could not find Token...")
             title = "Insight configuration processus"
@@ -100,11 +90,6 @@ class Initialization:
             openaitoken = fieldValues[1]
             elevenlabs_token = fieldValues[2]
 
-            try:
-                elevenlabs.set_api_key(elevenlabs_token)
-            except Exception as e:
-                console_log("Erro obtendo API do Eleven Labs:",e)
-                logging.error(e)
             data = {
                 'token': token,
                 'openaitoken': openaitoken,

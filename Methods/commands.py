@@ -15,7 +15,6 @@ import typing
 import asyncio
 import collections
 # Third-Party Library Imports
-import google.generativeai as genai
 import peewee
 from peewee import Model, CharField, SqliteDatabase
 import openai
@@ -50,6 +49,7 @@ from Methods.system_methods import console_log
 from Methods.database_models import *
 from Methods.command_parser import *
 from Methods.languagemodel import GenerateText
+from Methods.get_key import AcquireKey
 import lists
 
 
@@ -178,7 +178,8 @@ class BotService:
             response = GenerateText().run(dialogue, image_generation)
             await sendMessage(response[0], response[1])
             if voice:
-                Generate = GenerateText().gen_audio(response[0])
+                keys = AcquireKey().get_key()
+                Generate = GenerateText().gen_audio(response[0],key=keys["voice_token"])
                 Production = threading.Thread(target=Generate)
                 Production.start()
                 Production.join()
