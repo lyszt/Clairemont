@@ -1,7 +1,7 @@
 providence.json
 providence.env
 providence.log
-ffmpeg
-ffplay
-ffprobe
+ffmpeg.exe
+ffplay.exe
+ffprobe.exe
 speech

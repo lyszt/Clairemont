@@ -176,7 +176,7 @@ class Conversation:
 
     async def run(self, interaction, message_input, image_generation, context):
         await interaction.response.send_message(embed=default_embed
-        ('✨ Pensando... ',
+        ('✨ En train de penser ... ',
 'Sara está pensando na sua mensagem. Aguarde.'))
         google_context = Language().findMeaning(message_input)
         context += f"Resultados no google para auxiliar a resposta: {bing_search(google_context)}, {duckduckgo_search(google_context)}"
@@ -184,7 +184,7 @@ class Conversation:
         if image_generation:
             pass # Deactivated for the moment
         url = None
-        await interaction.edit_original_response(embed=default_embed(f"🍒 Então!", message_input))
+        await interaction.edit_original_response(embed=default_embed(f"🍒 Alors !", message_input))
     async def gen_audio(self, interaction, entry, context):
         key = os.getenv('ELEVENLABS_KEY')
         CHUNK_SIZE = 1024
