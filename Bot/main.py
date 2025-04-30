@@ -16,6 +16,8 @@ import atexit
 import random
 from bs4 import BeautifulSoup
 import requests
+from rich.console import Console
+from rich.markdown import Markdown
 
 # Running imports
 from dotenv import load_dotenv
@@ -48,6 +50,9 @@ def killDatabases():
 
 
 if __name__ == '__main__':
+
+
+
     Initialize().makeLogs()
     Initialize().makeTemp()
     Initialize().makeUser()
