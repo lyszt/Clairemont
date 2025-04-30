@@ -5,3 +5,5 @@ ffmpeg.exe
 ffplay.exe
 ffprobe.exe
 speech
+*.env
+.env

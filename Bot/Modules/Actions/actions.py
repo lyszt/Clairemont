@@ -1,8 +1,6 @@
 from datetime import datetime
 
 import discord
-
-from Bot.Modules.Main import Main
 import logging
 
 

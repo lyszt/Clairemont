@@ -23,39 +23,17 @@ from rich.markdown import Markdown
 from dotenv import load_dotenv
 from peewee import DoesNotExist
 
-from Bot.Modules.Speech.embeds import whois_embed
-from Bot.Modules.Spying.investigate import bing_search, get_from_database, duckduckgo_search
-# Modules
-from Modules.configuration import *
-from Modules.Data.collection import *
-from Modules.Data.message_analysis import *
-from Modules.Speech.speech import *
+from Bot.Modules.Main import Main
+
 # GLOBALS
-ENV = "Config/providence.env"
-
-
-load_dotenv(ENV)
 intents = discord.Intents.default()
 intents.message_content = True
 
-
 @atexit.register
 def killDatabases():
-    logging.info("Killing databases...")
-    for db_file in glob.glob("Bot/Data/**/*.db", recursive=True):
-        db = SqliteDatabase(db_file)
-        if not db.is_closed():
-            db.close()
-            logging.info(f"Closed database: {db_file}")
+    mainProcess.killDatabases()
 
 
 if __name__ == '__main__':
-
-
-
-    Initialize().makeLogs()
-    Initialize().makeTemp()
-    Initialize().makeUser()
-    logging.info("Logger initialized.")
-    client.run(os.getenv('DISCORD_TOKEN'))
-
+    mainProcess = Main()
+    mainProcess.run()
