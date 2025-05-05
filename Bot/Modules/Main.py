@@ -26,31 +26,22 @@ class Main:
         intents = discord.Intents.default()
         intents.message_content = True
         self.client = discord.Client(intents=intents)
-
-
-        logging.basicConfig(filename='providence.log',
-                            level=logging.INFO,
-                            format='%(asctime)s - %(levelname)s - %(message)s',
-                            datefmt="%H:%M:%S")
-        self.logger = logging.StreamHandler()
-        self.logger.setLevel(logging.INFO)
-        formatter = formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        self.logger.setFormatter(formatter)
-        logging.getLogger('').addHandler(logging.StreamHandler())
-
         self.tree = app_commands.CommandTree(self.client)
 
-    def run(self):
-        self.client.run(self.DISCORD_TOKEN)
-        action = Actions(self.console, self.logger, self.client)
+        action = Actions(self.tree, self.console, self.client)
+
         @self.client.event
         async def on_ready():
+            self.console.log("DISCORD CLIENT - [ Ready ].")
             await action.changePresence()
 
             @tasks.loop(minutes=10)
             async def change_presence_task():
                 await action.changePresence()
                 change_presence_task.start()
+
+    def run(self):
+        self.client.run(self.DISCORD_TOKEN)
 
     def getEnv(self, variable: str) -> str:
         try:
