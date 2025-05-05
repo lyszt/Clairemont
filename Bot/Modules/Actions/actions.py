@@ -12,11 +12,11 @@ class Actions():
         self.client = client
 
     async def changePresence(self):
-        logging.info(f"Providence initialized at {datetime.now()}")
-        logging.info("Backing up previous databases.")
+        self.console.log(f"Providence initialized at {datetime.now()}")
+        self.console.log("Backing up previous databases.")
         await self.client.wait_until_ready()
         await self.tree.sync(guild=None)
-        logging.info("Synced.")
+        self.console.log("Synced.")
 
         async def create_presence():
             presence_status = "Take your time."

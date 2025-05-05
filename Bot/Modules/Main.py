@@ -14,18 +14,19 @@ from rich.markdown import Markdown
 from Bot.Modules.Actions.actions import Actions
 
 
-class Main():
+class Main:
+    console = Console(color_system="windows")
 
     def __init__(self):
-        ENV = ".env"
-        load_dotenv(ENV)
-        self.DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
-
+        self.console.log("Initialized console.")
+        self.DISCORD_TOKEN = self.getEnv("DISCORD_TOKEN")
+        if self.DISCORD_TOKEN == "":
+            self.console.log("Could not find DISCORD_TOKEN, exiting.")
+            exit(1)
         intents = discord.Intents.default()
         intents.message_content = True
         self.client = discord.Client(intents=intents)
 
-        self.console = Console(color_system="windows")
 
         logging.basicConfig(filename='providence.log',
                             level=logging.INFO,
@@ -37,10 +38,11 @@ class Main():
         self.logger.setFormatter(formatter)
         logging.getLogger('').addHandler(logging.StreamHandler())
 
-        action = Actions(self.console, self.logger, self.client)
-
         self.tree = app_commands.CommandTree(self.client)
 
+    def run(self):
+        self.client.run(self.DISCORD_TOKEN)
+        action = Actions(self.console, self.logger, self.client)
         @self.client.event
         async def on_ready():
             await action.changePresence()
@@ -50,14 +52,25 @@ class Main():
                 await action.changePresence()
                 change_presence_task.start()
 
-    def run(self):
-        self.client.run(self.DISCORD_TOKEN)
-
-
+    def getEnv(self, variable: str) -> str:
+        try:
+            self.console.log(f"Getting environment variable: {variable}")
+            ENV_PATH = ".env"
+            load_dotenv(ENV_PATH)
+            if os.getenv(variable) is None:
+                self.console.log("Environment variable not set.")
+                return ""
+            env_var = os.environ.get(variable)
+            self.console.log(f"Acquired environment variable: {env_var[:5]}...")
+            return env_var
+        except Exception as err:
+            raise Exception(f"Environment variable {variable} not found. - {err.args} : {err}")
 
     def killDatabases(self):
+        self.console.log(f"Killing databases...")
         for db_file in glob.glob("Bot/Data/**/*.db", recursive=True):
             db = SqliteDatabase(db_file)
             if not db.is_closed():
                 db.close()
                 logging.info(f"Closed database: {db_file}")
+

@@ -6,4 +6,4 @@ ffplay.exe
 ffprobe.exe
 speech
 *.env
-.env
+Bot/.env

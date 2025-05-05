@@ -29,11 +29,12 @@ from Bot.Modules.Main import Main
 intents = discord.Intents.default()
 intents.message_content = True
 
-@atexit.register
-def killDatabases():
-    mainProcess.killDatabases()
-
 
 if __name__ == '__main__':
     mainProcess = Main()
     mainProcess.run()
+
+
+    @atexit.register
+    def killDatabases():
+        mainProcess.killDatabases()

@@ -1,0 +1,1 @@
+Insert the .env in this folder, not on the root folder.
