@@ -14,14 +14,15 @@ from rich.markdown import Markdown
 from Bot.Modules.Actions.Actions import Actions
 
 
-class Main:
-    console = Console(color_system="windows")
-
+class ShadowBot:
     def __init__(self):
         # GENERAL
+        ENV_PATH = ".env"
+        load_dotenv(ENV_PATH)
+        self.console = Console()
         self.console.log("Initialized console.")
 
-        # DISCORD RELATED INIT
+        # DISCORD
         self.DISCORD_TOKEN = self.getEnv("DISCORD_TOKEN")
         if self.DISCORD_TOKEN == "":
             self.console.log("Could not find DISCORD_TOKEN, exiting.")
@@ -34,18 +35,17 @@ class Main:
         # ACTIONS ABSTRACTS COMMANDS
         action = Actions(self.tree, self.console, self.client)
 
+        @tasks.loop(minutes=10)
+        async def change_presence_task():
+            await action.change_presence()
+            change_presence_task.start()
+
         @self.client.event
         async def on_ready():
             self.console.log("DISCORD CLIENT - [ Ready ].")
             await action.change_presence()
 
-            @tasks.loop(minutes=10)
-            async def change_presence_task():
-                await action.change_presence()
-                change_presence_task.start()
 
-    def getConsole(self):
-        return self.console
     def getClient(self):
         return self.client
     def getTree(self):
@@ -57,8 +57,7 @@ class Main:
     def getEnv(self, variable: str) -> str:
         try:
             self.console.log(f"Getting environment variable: {variable}")
-            ENV_PATH = ".env"
-            load_dotenv(ENV_PATH)
+
             if os.getenv(variable) is None:
                 self.console.log("Environment variable not set.")
                 return ""
@@ -69,10 +68,13 @@ class Main:
             raise Exception(f"Environment variable {variable} not found. - {err.args} : {err}")
 
     def killDatabases(self):
-        self.console.log(f"Killing databases...")
+        self.console.log("Killing databases...")
         for db_file in glob.glob("Bot/Data/**/*.db", recursive=True):
-            db = SqliteDatabase(db_file)
-            if not db.is_closed():
-                db.close()
+            try:
+                db = SqliteDatabase(db_file)
+                if not db.is_closed():
+                    db.close()
                 logging.info(f"Closed database: {db_file}")
+            except Exception as e:
+                self.console.log(f"Failed to close database {db_file}: {e}")
 

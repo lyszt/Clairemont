@@ -23,7 +23,7 @@ from rich.markdown import Markdown
 from dotenv import load_dotenv
 from peewee import DoesNotExist
 
-from Bot.Modules.Main import Main
+from Bot.Modules.ShadowBot import ShadowBot
 
 # GLOBALS
 intents = discord.Intents.default()
@@ -31,10 +31,10 @@ intents.message_content = True
 
 
 if __name__ == '__main__':
-    mainProcess = Main()
-    mainProcess.run()
+    Shadow = ShadowBot()
+    Shadow.run()
 
 
     @atexit.register
     def killDatabases():
-        mainProcess.killDatabases()
+        Shadow.killDatabases()
