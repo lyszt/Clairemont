@@ -5,7 +5,7 @@ import logging
 
 import requests
 
-from Bot.Modules.Actions.MakeRequests import QuoteFetcher
+from Bot.Modules.Actions.QuoteFetcher import QuoteFetcher
 
 
 class Actions:

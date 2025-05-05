@@ -11,7 +11,7 @@ from peewee import SqliteDatabase
 from rich.console import Console
 from rich.markdown import Markdown
 
-from Bot.Modules.Actions.actions import Actions
+from Bot.Modules.Actions.Actions import Actions
 
 
 class Main:
@@ -37,11 +37,11 @@ class Main:
         @self.client.event
         async def on_ready():
             self.console.log("DISCORD CLIENT - [ Ready ].")
-            await action.changePresence()
+            await action.change_presence()
 
             @tasks.loop(minutes=10)
             async def change_presence_task():
-                await action.changePresence()
+                await action.change_presence()
                 change_presence_task.start()
 
     def getConsole(self):
