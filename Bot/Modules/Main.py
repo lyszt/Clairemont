@@ -18,7 +18,10 @@ class Main:
     console = Console(color_system="windows")
 
     def __init__(self):
+        # GENERAL
         self.console.log("Initialized console.")
+
+        # DISCORD RELATED INIT
         self.DISCORD_TOKEN = self.getEnv("DISCORD_TOKEN")
         if self.DISCORD_TOKEN == "":
             self.console.log("Could not find DISCORD_TOKEN, exiting.")
@@ -28,6 +31,7 @@ class Main:
         self.client = discord.Client(intents=intents)
         self.tree = app_commands.CommandTree(self.client)
 
+        # ACTIONS ABSTRACTS COMMANDS
         action = Actions(self.tree, self.console, self.client)
 
         @self.client.event
@@ -39,6 +43,13 @@ class Main:
             async def change_presence_task():
                 await action.changePresence()
                 change_presence_task.start()
+
+    def getConsole(self):
+        return self.console
+    def getClient(self):
+        return self.client
+    def getTree(self):
+        return self.tree
 
     def run(self):
         self.client.run(self.DISCORD_TOKEN)
