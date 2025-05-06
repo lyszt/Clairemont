@@ -15,3 +15,4 @@ ffmpeg-python
 audioop-lts
 nltk
 beautifulsoup4
+google-genai

@@ -12,6 +12,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 from Bot.Modules.Actions.Actions import Actions
+from Bot.Modules.Speech.Speech import Speech
 
 
 class ShadowBot:
@@ -42,9 +43,16 @@ class ShadowBot:
             self.console.log("DISCORD CLIENT - [ Ready ].")
             await change_presence_task.start()
 
+
         @tasks.loop(minutes=10)
         async def change_presence_task():
             await action.change_presence()
+
+        @self.client.event
+        async def on_message(self, message):
+            if "shadow" in str.lower(message.content):
+                await message.channel.send(Speech.simpleSpeech(message.content, self.getEnv("GEMINI_TOKEN")))
+
 
     def getClient(self):
         return self.client
