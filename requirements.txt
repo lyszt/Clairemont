@@ -16,3 +16,4 @@ audioop-lts
 nltk
 beautifulsoup4
 google-genai
+mem0ai
