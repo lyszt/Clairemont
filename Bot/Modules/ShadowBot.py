@@ -49,9 +49,11 @@ class ShadowBot:
             await action.change_presence()
 
         @self.client.event
-        async def on_message(self, message):
+        async def on_message(message):
             if "shadow" in str.lower(message.content):
-                await message.channel.send(Speech(self.getEnv("GEMINI_TOKEN")).simpleSpeech(message.content))
+                response = Speech(self.getEnv("GEMINI_TOKEN")).simpleSpeech(message.content)
+                self.console.log(response)
+                await message.channel.send(response)
 
 
     def getClient(self):
