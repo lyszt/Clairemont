@@ -48,12 +48,16 @@ class ShadowBot:
         async def change_presence_task():
             await action.change_presence()
 
+        self.last_author_id = None
+
         @self.client.event
         async def on_message(message):
-            if "shadow" in str.lower(message.content):
+            if message.author == self.client.user: return
+            if "shadow" in message.content.lower() or self.last_author_id == self.client.user.id:
                 response = Speech(self.getEnv("GEMINI_TOKEN")).simpleSpeech(message.content)
                 self.console.log(response)
                 await message.channel.send(response)
+            self.last_author_id = message.author.id
 
 
     def getClient(self):
