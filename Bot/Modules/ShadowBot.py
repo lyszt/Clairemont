@@ -58,7 +58,7 @@ class ShadowBot:
             )
             if message.author == self.client.user: return
             if "shadow" in message.content.lower() or "luneta" in message.content.lower() or past_messages[1].author.id == self.client.user.id:
-                response = Speech(self.getEnv("GEMINI_TOKEN")).simpleSpeech(message.content, conversational_context)
+                response = Speech(self.getEnv("GEMINI_TOKEN")).contextSpeech(message.content, conversational_context)
                 self.console.log(response)
                 await message.channel.send(response)
 
