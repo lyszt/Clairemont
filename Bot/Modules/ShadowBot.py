@@ -51,10 +51,14 @@ class ShadowBot:
 
         @self.client.event
         async def on_message(message):
-            self.last_author_id = message.author.id
+            history = message.channel.history(limit=5)
+            past_messages = [msg async for msg in message.channel.history(limit=5)]
+            conversational_context = "\n".join(
+                f"{msg.author.name} diz: {msg.content}" for msg in past_messages
+            )
             if message.author == self.client.user: return
-            if "shadow" in message.content.lower() or "luneta" in message.content.lower() or self.last_author_id == self.client.user.id:
-                response = Speech(self.getEnv("GEMINI_TOKEN")).simpleSpeech(message.content)
+            if "shadow" in message.content.lower() or "luneta" in message.content.lower() or past_messages[1].author.id == self.client.user.id:
+                response = Speech(self.getEnv("GEMINI_TOKEN")).simpleSpeech(message.content, conversational_context)
                 self.console.log(response)
                 await message.channel.send(response)
 
