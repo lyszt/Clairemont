@@ -16,7 +16,7 @@ from Bot.Modules.Speech.Speech import Speech
 
 
 class ShadowBot:
-    def __init__(self):
+    def __init__(self, intents):
         # GENERAL
         ENV_PATH = ".env"
         load_dotenv(ENV_PATH)
@@ -28,8 +28,7 @@ class ShadowBot:
         if self.DISCORD_TOKEN == "":
             self.console.log("Could not find DISCORD_TOKEN, exiting.")
             exit(1)
-        intents = discord.Intents.default()
-        intents.message_content = True
+
         self.client = discord.Client(intents=intents)
         self.tree = app_commands.CommandTree(self.client)
 

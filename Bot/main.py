@@ -31,7 +31,7 @@ intents.message_content = True
 
 
 if __name__ == '__main__':
-    Shadow = ShadowBot()
+    Shadow = ShadowBot(intents)
     Shadow.run()
 
 
