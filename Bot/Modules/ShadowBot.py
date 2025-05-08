@@ -11,8 +11,11 @@ from dotenv import load_dotenv
 from peewee import SqliteDatabase
 from rich.console import Console
 from rich.markdown import Markdown
+from servicemanager import Initialize
 
 from Bot.Modules.Actions.Actions import Actions
+from Bot.Modules.Data.InitializeDatabases import InitializeDatabases
+from Bot.Modules.Data.dataCommands import dataCommands
 from Bot.Modules.Speech.Speech import Speech
 
 
@@ -23,7 +26,7 @@ class ShadowBot:
         load_dotenv(ENV_PATH)
         self.console = Console()
         self.console.log("Initialized console.")
-
+        self.initializeDatabases()
         # DISCORD
         self.DISCORD_TOKEN = self.getEnv("DISCORD_TOKEN")
         if self.DISCORD_TOKEN == "":
@@ -35,7 +38,6 @@ class ShadowBot:
 
         # ACTIONS ABSTRACTS COMMANDS
         action = Actions(self.tree, self.console, self.client)
-
 
 
         @self.client.event
@@ -62,6 +64,9 @@ class ShadowBot:
                 self.console.log(response)
                 await message.channel.send(response)
 
+        @self.tree.command(name="collect")
+        async def collect(interaction: discord.Interaction):
+            await dataCommands(self.console, self.client).collect(interaction)
 
     def getClient(self):
         return self.client
@@ -84,6 +89,9 @@ class ShadowBot:
         except Exception as err:
             raise Exception(f"Environment variable {variable} not found. - {err.args} : {err}")
 
+    def initializeDatabases(self):
+        self.console.log("Initializing databases.")
+        InitializeDatabases(self.console).initializeCorte()
     def killDatabases(self):
         self.console.log("Killing databases...")
         for db_file in glob.glob("Bot/Data/**/*.db", recursive=True):
