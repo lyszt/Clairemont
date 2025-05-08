@@ -30,8 +30,6 @@ def create_or_update_user_profile(user_data: dict):
         'last_seen': last_seen,
         'joined_at': joined_at,
         'is_bot': is_bot,
-        'bio': bio,
-        'sentiment_score': 0,
         'last_interaction': timestamp,
         'created_at': datetime.now(),
     })

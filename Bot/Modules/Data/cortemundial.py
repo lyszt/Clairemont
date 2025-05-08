@@ -30,8 +30,6 @@ class Messages(Model):
     message_id = CharField(unique=True)  # Unique Discord message ID
     message_text = TextField()
     timestamp = DateTimeField()
-    sentiment_score = FloatField(null=True)
-    subjectivity = FloatField(null=True)
     message_type = CharField(default='text')
     channel_id = CharField(null=True)
     guild_id = CharField(null=True)
