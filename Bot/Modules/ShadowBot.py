@@ -52,7 +52,6 @@ class ShadowBot:
 
         @self.client.event
         async def on_message(message):
-            # INFINITE loop, must fix, Shadow will always detect a message that was his before the user's, because he will keep sending them
             past_messages = [msg async for msg in message.channel.history(limit=5)]
             conversational_context = "\n".join(
                 f"{msg.author.name} diz: {msg.content}" for msg in past_messages
