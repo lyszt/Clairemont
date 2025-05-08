@@ -7,6 +7,7 @@ from pathlib import Path
 
 db = SqliteDatabase("C:\\Users\\joaoluis.santos\\PycharmProjects\\Mestre-Sara-a-taveneira\Bot\\Data\\corte.db")
 
+
 # USER PROFILING
 
 class Profiles(Model):

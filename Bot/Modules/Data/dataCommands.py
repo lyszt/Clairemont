@@ -21,8 +21,13 @@ class dataCommands:
             total_channels = len(guild.text_channels)
             processed_channels = 0
             total_messages = 0
+            blocked_list = [607697321366388739]
+            lore_list = ["rp", "eventos", "nações", "nações-secundárias", "🔹seoul🔹", "jornal-mundial", "corte-mundial", "🔹rp🔹", "🔹eventos🔹", "🔹notícias🔹"]
 
             for channel in guild.text_channels:
+                if not(any(match in channel.name.lower() for match in lore_list) and channel.id not in blocked_list):
+                    self.console.log(f"Skipping {channel.name}.")
+                    continue
                 if not channel.permissions_for(guild.me).read_message_history:
                     self.console.log(f"Skipping {channel.name} (no permissions)")
                     continue
