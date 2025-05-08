@@ -10,6 +10,7 @@ class Speech:
     def simpleSpeech(self, message : str) -> str:
         response = self.client.models.generate_content(model="gemini-2.0-flash-lite", contents=f"""
         {Prompts.self_concept}, {Prompts.chat_instructions} - MENSAGEM: {message}""")
-        return response.text
+        formatted_response = (response.text.strip("\n")).replace("\n", " ")
+        return formatted_response
     def contextSpeech(self, message : str, context: str) -> str:
         return self.simpleSpeech(f"{message} - MENSAGENS ANTERIORES DO CHAT: {context}")
