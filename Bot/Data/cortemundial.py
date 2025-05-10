@@ -2,12 +2,10 @@ import os
 import sys
 
 from peewee import Model, CharField, SqliteDatabase, DateTimeField, BooleanField, TextField, IntegerField, \
-    ForeignKeyField, FloatField
+ForeignKeyField, FloatField
 from pathlib import Path
 
-db = SqliteDatabase("C:\\Users\\joaoluis.santos\\PycharmProjects\\Mestre-Sara-a-taveneira\Bot\\Data\\corte.db")
-
-
+db = SqliteDatabase("corte.db")
 # USER PROFILING
 
 class Profiles(Model):

@@ -1,5 +1,9 @@
-discord
 python-dotenv
+discord.py
+discord
 peewee
 google-genai
 rich
+translate
+openai
+requests~=2.32.0

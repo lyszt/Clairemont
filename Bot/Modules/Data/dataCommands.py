@@ -1,8 +1,7 @@
 import discord
-from discord.ext import tasks
 
 from Bot.Modules.Data.collect import create_or_update_message_details
-from Bot.Modules.Data.cortemundial import Profiles
+from Bot.Data.cortemundial import Profiles
 
 
 class dataCommands:

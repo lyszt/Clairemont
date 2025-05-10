@@ -1,27 +1,8 @@
-# Application Imports
-import glob
-import time
-import typing
+from pathlib import Path
 
-import translate
 import discord
-from discord import app_commands
-from discord.ext import tasks, commands
-from openai import OpenAI
-from nltk.probability import FreqDist
-# Databases
-
-# Util Imports
 import atexit
-import random
-from bs4 import BeautifulSoup
-import requests
-from rich.console import Console
-from rich.markdown import Markdown
 
-# Running imports
-from dotenv import load_dotenv
-from peewee import DoesNotExist
 
 from Bot.Modules.ShadowBot import ShadowBot
 
@@ -31,7 +12,8 @@ intents.message_content = True
 
 
 if __name__ == '__main__':
-    Shadow = ShadowBot(intents)
+    base_dir = Path(__file__).resolve().parent
+    Shadow = ShadowBot(intents, directory=base_dir)
     Shadow.run()
 
 

@@ -1,17 +1,14 @@
 import glob
 import logging
 import os
+import random
 
 import discord
-import random
-import requests
 from discord import app_commands
 from discord.ext import tasks
 from dotenv import load_dotenv
 from peewee import SqliteDatabase
 from rich.console import Console
-from rich.markdown import Markdown
-from servicemanager import Initialize
 
 from Bot.Modules.Actions.Actions import Actions
 from Bot.Modules.Data.InitializeDatabases import InitializeDatabases
@@ -20,8 +17,9 @@ from Bot.Modules.Speech.Speech import Speech
 
 
 class ShadowBot:
-    def __init__(self, intents):
+    def __init__(self, intents, directory):
         # GENERAL
+        self.directory = directory
         ENV_PATH = ".env"
         load_dotenv(ENV_PATH)
         self.console = Console()
@@ -91,7 +89,7 @@ class ShadowBot:
 
     def initializeDatabases(self):
         self.console.log("Initializing databases.")
-        InitializeDatabases(self.console).initializeCorte()
+        InitializeDatabases(self.console, self.directory).initializeCorte()
     def killDatabases(self):
         self.console.log("Killing databases...")
         for db_file in glob.glob("Bot/Data/**/*.db", recursive=True):

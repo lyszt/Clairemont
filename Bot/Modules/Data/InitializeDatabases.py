@@ -1,16 +1,19 @@
 import peewee
 from peewee import SqliteDatabase
 
-from Bot.Modules.Data.cortemundial import Profiles, Messages
+from Bot.Data.cortemundial import Profiles, Messages
 
 
 class InitializeDatabases:
-    def __init__(self, console):
+    def __init__(self, console, directory):
         self.console = console
+        self.directory = directory
 
 
     def initializeCorte(self):
-        db = SqliteDatabase("Data/users.db")
+        db_file = self.directory / 'Data' / 'corte.db'
+        self.console.log(f"Resolved path {db_file}")
+        db = SqliteDatabase(db_file)
         try:
             db.connect()
         except peewee.OperationalError as e:

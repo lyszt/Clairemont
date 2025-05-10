@@ -2,9 +2,6 @@ from datetime import datetime
 
 import discord
 import logging
-
-import requests
-
 from Bot.Modules.Actions.QuoteFetcher import QuoteFetcher
 
 

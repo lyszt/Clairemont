@@ -1,10 +1,6 @@
-import logging
 from datetime import datetime
-from profile import Profile
 
-from .cortemundial import *
-import statistics
-
+from Bot.Data.cortemundial import *
 
 
 def create_or_update_user_profile(user_data: dict):
@@ -47,10 +43,6 @@ def create_or_update_user_profile(user_data: dict):
 
 
 import logging
-import statistics
-
-import logging
-import statistics
 
 
 def create_or_update_message_details(message_details: dict):
