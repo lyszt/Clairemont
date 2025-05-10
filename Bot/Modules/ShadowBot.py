@@ -66,7 +66,7 @@ class ShadowBot:
                     or f"<@{self.client.user.id}>" in message.content):
                 if message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
                     self.console.log("✨ Thinking about what I should say... ✨")
-                    response = Speech(self.getEnv("GEMINI_TOKEN")).contextSpeech(message.content, conversational_context)
+                    response = Speech(self.getEnv("GEMINI_TOKEN"),self.console).contextSpeech(message.content, conversational_context)
                     self.console.log(response)
                     await message.channel.send(response)
 
