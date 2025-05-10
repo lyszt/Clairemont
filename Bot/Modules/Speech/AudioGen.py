@@ -42,9 +42,9 @@ class AudioGen:
             client = OpenAI()
             with client.audio.speech.with_streaming_response.create(
                     model="gpt-4o-mini-tts",
-                    voice="onyx",  # Better for rebellious tone
+                    voice="verse",  # Better for rebellious tone
                     input=text,
-                    instructions="Seja muito animado e meio sarcástico, como se fosse o protagonista.",
+                    instructions="Fale com um sotaque carioca. Seja muito animado e meio sarcástico, como se fosse o protagonista. Dê risadas.",
                     response_format="mp3"
             ) as response:
                 response.stream_to_file("temp/speech.mp3")
