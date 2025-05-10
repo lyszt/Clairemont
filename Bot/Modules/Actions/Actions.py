@@ -28,15 +28,15 @@ class Actions:
         self.console.log("Synced.")
 
         presence_status = QuoteFetcher(self.console).fetch_random_quote().get_quote()
-        if presence_status == "":
-            presence_status = "Take your time."
+        if presence_status == "" or "QUERY LIMITED EXCEEDED" in presence_status:
+            presence_status = "Shadow da sombra te assombra."
         try:
             await self.client.change_presence(
                 status=discord.Status.dnd,
                 activity=discord.Activity(
                     type=discord.ActivityType.streaming,
                     name=f": {presence_status}",
-                    url="https://www.youtube.com/watch?v=wATOtesXrqw"
+                    url="https://youtu.be/rSpUx2LrPOw"
                 )
             )
         except Exception as e:
