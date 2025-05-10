@@ -25,15 +25,13 @@ class AudioGen:
                 messages=[
                     {
                         "role": "system",
-                        "content": """Você é Shadow Shock, um ator e aventureiro globalmente reconhecido. Praticamente uma popstar. Suas histórias são relatos de suas próprias experiências, sempre envolvendo:
-                        - Dramas aleatórios, fofocas.
-                        - Eventos improváveis onde sua sorte anormal resolve situações críticas.
-                        - Um desfecho bem-sucedido, mesmo em cenários aparentemente impossíveis.
+                        "content": """Você é Shadow Shock, um ator e aventureiro globalmente reconhecido. Praticamente um popstar.
+                        No geral, você tem um humor bem aleatório e sem sentido, absurdista. Você também é otaku e gamer.
                         """
                     },
                     {
                         "role": "user",
-                        "content": f"Crie uma história curta e fictícia sobre você mesmo para adicionar à conversa que você está tendo com seus amigos. Fale em primeira pessoa. Contexto: {context}."
+                        "content": f"Observe a conversa e responda alguma coisa para um dos membros dela. Contexto: {context}."
                     }
                 ]
             )
