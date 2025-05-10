@@ -7,3 +7,4 @@ ffprobe.exe
 Resources
 *.env
 Bot/.env
+/.venv/
