@@ -52,6 +52,9 @@ class ShadowBot:
 
         @self.client.event
         async def on_message(message):
+            # In order to keep control of Shadow's autonomous behaviour
+            allowed_guilds = [452243234002042880, 696830110493573190]
+            allowed_channels = [704066892972949507]
             past_messages = [msg async for msg in message.channel.history(limit=5)]
             conversational_context = "\n".join(
                 f"{msg.author.name} diz: {msg.content}" for msg in past_messages
@@ -61,9 +64,11 @@ class ShadowBot:
                 "luneta" in message.content.lower()) or
                     (past_messages[1].author.id == self.client.user.id and random.randint(1,3) == 1))
                     or f"<@{self.client.user.id}>" in message.content):
-                response = Speech(self.getEnv("GEMINI_TOKEN")).contextSpeech(message.content, conversational_context)
-                self.console.log(response)
-                await message.channel.send(response)
+                if message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
+                    self.console.log("✨ Thinking about what I should say... ✨")
+                    response = Speech(self.getEnv("GEMINI_TOKEN")).contextSpeech(message.content, conversational_context)
+                    self.console.log(response)
+                    await message.channel.send(response)
 
         @self.tree.command(name="collect")
         async def collect(interaction: discord.Interaction):

@@ -28,7 +28,7 @@ class Actions:
         self.console.log("Synced.")
 
         presence_status = QuoteFetcher(self.console).fetch_random_quote().get_quote()
-        if presence_status == "" or "QUERY LIMITED EXCEEDED" in presence_status:
+        if presence_status == "" or "QUERY LIMITED EXCEEDED" in presence_status or presence_status is None:
             presence_status = "Shadow da sombra te assombra."
         try:
             await self.client.change_presence(
