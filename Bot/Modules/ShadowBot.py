@@ -83,15 +83,24 @@ class ShadowBot:
         @self.tree.command(name="fx")
         async def f_of_x(interaction: discord.Interaction, function: str):
             await interaction.response.defer()
-            Graphing(self.console).graph_2d(function)
-            await interaction.followup.send(file=discord.File("graph_2d.jpg"))
+            try:
+                Graphing(self.console).graph_2d(function)
+                await interaction.followup.send(file=discord.File("graph_2d.jpg"))
+            except Exception as e:
+                self.console.log(e)
+                await interaction.followup.send("Não consegui colocar essa função em um gráfico. Dá uma olhada pra ver o que arrumar.")
 
         @self.tree.command(name="fxy")
         async def f_of_x_y(interaction: discord.Interaction, function: str):
             await interaction.response.defer()
             function = function.replace("²", "**2")
-            Graphing(self.console).graph_3d(function)
-            await interaction.followup.send(file=discord.File("graph_3d.jpg"))
+            try:
+                Graphing(self.console).graph_3d(function)
+                await interaction.followup.send(file=discord.File("graph_3d.jpg"))
+            except Exception as e:
+                self.console.log(e)
+                await interaction.followup.send("Não consegui colocar essa função em um gráfico. Dá uma olhada pra ver o que arrumar.")
+
     def getClient(self):
         return self.client
     def getTree(self):

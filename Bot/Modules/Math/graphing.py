@@ -19,7 +19,7 @@ class Graphing:
             output = f(values)
         except Exception as e:
             self.console.log(f"Error parsing or evaluating function: {e}")
-            return
+            raise
         plt.clf()
         plt.plot(values, output, color='black', linewidth=2)
         plt.title(f"Gráfico de f(x) = {function}")
@@ -44,7 +44,8 @@ class Graphing:
             Z = f(X, Y)
         except Exception as e:
             self.console.log(f"Error parsing or evaluating function: {e}")
-            return
+            raise
+
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
