@@ -89,6 +89,7 @@ class ShadowBot:
         @self.tree.command(name="fxy")
         async def f_of_x_y(interaction: discord.Interaction, function: str):
             await interaction.response.defer()
+            function = function.replace("²", "**2")
             Graphing(self.console).graph_3d(function)
             await interaction.followup.send(file=discord.File("graph_3d.jpg"))
     def getClient(self):
