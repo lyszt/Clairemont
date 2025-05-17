@@ -16,5 +16,5 @@ class Speech:
         formatted_response = (response.text.strip("\n")).replace("\n", " ")
         return formatted_response
     def contextSpeech(self, message : str, context: str) -> str:
-        final_speech = Thinking(self.api_key, self.console).naturalize(self.simpleSpeech(f"{message} - MENSAGENS ANTERIORES DO CHAT: {context}"), context)
+        final_speech = Thinking(self.api_key, self.console).naturalize(self.simpleSpeech(f"MENSAGEM DO USUÁRIO: {message} - MENSAGENS ANTERIORES DO CHAT: {context}"), context)
         return final_speech
