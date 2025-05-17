@@ -13,6 +13,7 @@ from rich.console import Console
 from Bot.Modules.Actions.Actions import Actions
 from Bot.Modules.Data.InitializeDatabases import InitializeDatabases
 from Bot.Modules.Data.dataCommands import dataCommands
+from Bot.Modules.Math.graphing import Graphing
 from Bot.Modules.Speech.AudioGen import AudioGen
 from Bot.Modules.Speech.Speech import Speech
 
@@ -79,6 +80,11 @@ class ShadowBot:
         async def collect(interaction: discord.Interaction):
             await dataCommands(self.console, self.client).collect(interaction)
 
+        @self.tree.command(name="fx")
+        async def f_of_x(interaction: discord.Interaction, function: str):
+            await interaction.response.defer()
+            Graphing(self.console).graph_2d(function)
+            await interaction.followup.send(file=discord.File("graph_2d.jpg"))
     def getClient(self):
         return self.client
     def getTree(self):

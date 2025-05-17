@@ -8,3 +8,6 @@ Resources
 *.env
 Bot/.env
 /.venv/
+
+graph_2d.jpg
+graph_3d.jpg
