@@ -1,5 +1,7 @@
-import discord
+import os
 
+import discord
+from datetime import datetime
 from Bot.Modules.Data.collect import create_or_update_message_details
 from Bot.Data.cortemundial import Profiles
 
