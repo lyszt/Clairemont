@@ -28,6 +28,8 @@ class ShadowBot:
         self.console = Console()
         self.console.log("Initialized console.")
         self.initializeDatabases()
+        # This needs to be improved. A database would suffice.
+        self.allowed_users = [779546493425287180]
         # DISCORD
         self.DISCORD_TOKEN = self.getEnv("DISCORD_TOKEN")
         if self.DISCORD_TOKEN == "":
@@ -82,8 +84,13 @@ class ShadowBot:
 
         @self.tree.command(name="collect")
         async def collect(interaction: discord.Interaction):
-            await dataCommands(self.console, self.client).collect(interaction)
+            if interaction.user.id in self.allowed_users:
+                await dataCommands(self.console, self.client).collect(interaction)
 
+        @self.tree.command(name="collect_to_text")
+        async def collect(interaction: discord.Interaction):
+            if interaction.user.id in self.allowed_users:
+                await dataCommands(self.console, self.client).collect_to_text(interaction)
         @self.tree.command(name="fx")
         async def f_of_x(interaction: discord.Interaction, function: str):
             await interaction.response.defer()

@@ -111,3 +111,59 @@ class dataCommands:
             await interaction.followup.send(report)
         else:
             await interaction.response.send_message("You are not authorized to use this command.", ephemeral=True)
+
+    async def collect_to_text(self, interaction: discord.Interaction):
+        if interaction.user.id != 1047943536374464583:
+            await interaction.response.send_message("You are not authorized to use this command.", ephemeral=True)
+            return
+
+        await interaction.response.defer(ephemeral=True)
+
+        channel = interaction.channel
+        guild = interaction.guild
+        if not guild or not channel:
+            await interaction.followup.send("This command must be used in a server text channel.")
+            return
+
+        if not channel.permissions_for(guild.me).read_message_history:
+            await interaction.followup.send("I don't have permission to read the message history in this channel.")
+            return
+
+        log_lines = []
+        total_messages = 0
+
+        try:
+            self.console.log(f"Collecting messages from #{channel.name}...")
+
+            async for msg in channel.history(limit=None, oldest_first=True):
+                if msg.author.bot:
+                    continue  # Skip bots
+
+                timestamp = msg.created_at.strftime('%Y-%m-%d %H:%M')
+                username = f"{msg.author.name}#{msg.author.discriminator}"
+                content = msg.content or '[No Content]'
+                line = f"[{timestamp}] {username}: {content}"
+                log_lines.append(line)
+                total_messages += 1
+
+        except Exception as e:
+            self.console.log(f"Error reading channel {channel.name}: {e}")
+            await interaction.followup.send(f"Failed to collect messages: {str(e)}")
+            return
+
+        # Save to file
+        date_str = datetime.utcnow().strftime("%Y-%m-%d_%H-%M")
+        filename = f"{guild.name}_{channel.name}_chatlog_{date_str}.txt"
+        os.makedirs("chatlogs", exist_ok=True)
+        filepath = os.path.join("chatlogs", filename)
+
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write("\n".join(log_lines))
+
+        report = (
+            f"**Chat Log Collection Complete**\n"
+            f"• Channel: #{channel.name}\n"
+            f"• Total user messages collected: {total_messages}\n"
+            f"• Log file saved as: `{filename}`"
+        )
+        await interaction.followup.send(report)
