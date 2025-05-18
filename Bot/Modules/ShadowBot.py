@@ -15,6 +15,7 @@ from Bot.Modules.Data.InitializeDatabases import InitializeDatabases
 from Bot.Modules.Data.dataCommands import dataCommands
 from Bot.Modules.Math.graphing import Graphing
 from Bot.Modules.Speech.AudioGen import AudioGen
+from Bot.Modules.Speech.Shitpost import Shitpost
 from Bot.Modules.Speech.Speech import Speech
 
 
@@ -67,14 +68,17 @@ class ShadowBot:
                     (past_messages[1].author.id == self.client.user.id and random.randint(1,3) == 1))
                     or f"<@{self.client.user.id}>" in message.content):
                 if message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
-                    self.console.log("✨ Thinking about what I should say... ✨")
-                    response = Speech(self.getEnv("GEMINI_TOKEN"),self.console).contextSpeech(message.content, conversational_context)
-                    self.console.log(response)
-                    await message.channel.send(response.lower())
-                    if random.randint(1,10) == 1:
-                        self.console.log("✨I have an interesting story to tell. ✨")
-                        await AudioGen(self.getEnv("OPENAI_API_KEY"), self.console).gen_audio(message,
-                                                                                              conversational_context)
+                    if random.randint(0, 1) == 1:
+                        await message.channel.send(file=Shitpost(self.console).post())
+                    else:
+                        self.console.log("✨ Thinking about what I should say... ✨")
+                        response = Speech(self.getEnv("GEMINI_TOKEN"),self.console).contextSpeech(message.content, conversational_context)
+                        self.console.log(response)
+                        await message.channel.send(response.lower())
+                        if random.randint(1,10) == 1:
+                            self.console.log("✨I have an interesting story to tell. ✨")
+                            await AudioGen(self.getEnv("OPENAI_API_KEY"), self.console).gen_audio(message,
+                                                                                                  conversational_context)
 
         @self.tree.command(name="collect")
         async def collect(interaction: discord.Interaction):
