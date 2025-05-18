@@ -29,7 +29,7 @@ class ShadowBot:
         self.console.log("Initialized console.")
         self.initializeDatabases()
         # This needs to be improved. A database would suffice.
-        self.allowed_users = [779546493425287180]
+        self.allowed_users = [779546493425287180, 1047943536374464583]
         # DISCORD
         self.DISCORD_TOKEN = self.getEnv("DISCORD_TOKEN")
         if self.DISCORD_TOKEN == "":

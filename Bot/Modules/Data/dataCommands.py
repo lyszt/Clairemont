@@ -113,10 +113,6 @@ class dataCommands:
             await interaction.response.send_message("You are not authorized to use this command.", ephemeral=True)
 
     async def collect_to_text(self, interaction: discord.Interaction):
-        if interaction.user.id != 1047943536374464583:
-            await interaction.response.send_message("You are not authorized to use this command.", ephemeral=True)
-            return
-
         await interaction.response.defer(ephemeral=True)
 
         channel = interaction.channel
