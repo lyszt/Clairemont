@@ -4,7 +4,6 @@ providence.log
 ffmpeg.exe
 ffplay.exe
 ffprobe.exe
-Resources
 *.env
 Bot/.env
 /.venv/
