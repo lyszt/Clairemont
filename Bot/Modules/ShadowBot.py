@@ -71,7 +71,7 @@ class ShadowBot:
                     or f"<@{self.client.user.id}>" in message.content):
                 if message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
                     if random.randint(0, 1) == 1:
-                        await message.channel.send(file=Shitpost(self.console).post())
+                        await message.channel.send(file=Shitpost(self.console).post(message.content.lower()))
                     else:
                         self.console.log("✨ Thinking about what I should say... ✨")
                         response = Speech(self.getEnv("GEMINI_TOKEN"),self.console).contextSpeech(message.content, conversational_context)
