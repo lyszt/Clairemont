@@ -70,7 +70,7 @@ class ShadowBot:
                     (past_messages[1].author.id == self.client.user.id and random.randint(1,3) == 1))
                     or f"<@{self.client.user.id}>" in message.content):
                 if message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
-                    if random.randint(0, 1) == 1:
+                    if random.randint(1, 5) == 1:
                         await message.channel.send(file=Shitpost(self.console).post(message.content.lower()))
                     else:
                         self.console.log("✨ Thinking about what I should say... ✨")
