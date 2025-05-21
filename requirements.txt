@@ -8,3 +8,4 @@ translate
 openai
 requests~=2.32.0
 simpy
+matplotlib
