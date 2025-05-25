@@ -10,7 +10,7 @@ class Shitpost:
         self.console = console
 
     def post(self, message):
-        shitpost_collection = [f for f in os.listdir("Resources/Video/") if os.path.isfile(os.path.join("Resources/Video", f))]
+        shitpost_collection = [f for f in os.listdir("Resources/Video/Shitpost/") if os.path.isfile(os.path.join("Resources/Video", f))]
         for file in shitpost_collection:
             if message in file:
                 return file

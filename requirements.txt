@@ -6,8 +6,10 @@ google-genai
 rich
 translate
 openai
-requests~=2.32.0
+requests
 simpy
 matplotlib
 sympy
 aiofiles
+numpy
+pydub

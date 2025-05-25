@@ -15,6 +15,8 @@ from Bot.Modules.Data.InitializeDatabases import InitializeDatabases
 from Bot.Modules.Data.dataCommands import dataCommands
 from Bot.Modules.Math.graphing import Graphing
 from Bot.Modules.Speech.AudioGen import AudioGen
+from Bot.Modules.Speech.Embed import Embed
+from Bot.Modules.Speech.RandomInteraction import RandomInteraction
 from Bot.Modules.Speech.Shitpost import Shitpost
 from Bot.Modules.Speech.Speech import Speech
 
@@ -57,32 +59,40 @@ class ShadowBot:
 
         @self.client.event
         async def on_message(message):
-            # In order to keep control of Shadow's autonomous behaviour
+            if message.author == self.client.user:
+                return
+
             allowed_guilds = [452243234002042880, 696830110493573190]
             allowed_channels = [704066892972949507]
 
-            if message.author == self.client.user: return
             should_reply = (
-                    "shadow" in message.content.lower() or
-                    "luneta" in message.content.lower() or
+                    "sara" in message.content.lower() or
                     f"<@{self.client.user.id}>" in message.content
             )
-            if should_reply and message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
-                    if random.randint(1, 5) == 1:
-                        await message.channel.send(file=Shitpost(self.console).post(message.content.lower()))
-                    else:
+
+
+            is_allowed_location = message.guild.id in allowed_guilds or message.channel.id in allowed_channels
+            if should_reply and is_allowed_location:
+
+                    async with message.channel.typing():
+
                         past_messages = [msg async for msg in message.channel.history(limit=5)]
                         conversational_context = "\n".join(
-                            f"{msg.author.name} diz: {msg.content}" for msg in past_messages
+                            f"{msg.author.name} says: {msg.content}" for msg in reversed(past_messages)
                         )
-                        self.console.log("✨ Thinking about what I should say... ✨")
-                        response = Speech(self.getEnv("GEMINI_TOKEN"),self.console).contextSpeech(message.content, conversational_context)
-                        self.console.log(response)
-                        await message.channel.send(response.lower())
-                        if random.randint(1,5) == 1:
-                            self.console.log("✨I decided to make an audio about this message. ✨")
-                            await AudioGen(self.getEnv("OPENAI_API_KEY"), self.console).gen_audio(message,
-                                                                                                  conversational_context)
+
+                        self.console.log(f"✨ Sara is thinking about a response to '{message.content}'... ✨")
+                        response_text = Speech(self.getEnv("GEMINI_TOKEN"), self.console).contextSpeech(message.content,
+                                                                                                        conversational_context)
+                        self.console.log(f"Sara's thought: {response_text}")
+
+                        sara_embed = Embed.create(
+                            title="From behind the counter, Sara replies...",
+                            description=response_text,
+                            footer_text="Taverna do Caiçara •",
+                        )
+                        await message.channel.send(embed=sara_embed)
+                        await RandomInteraction(self.console, self.getEnv("OPENAI_API_KEY")).choose_interaction(message, response_text, conversational_context)
 
         @self.tree.command(name="collect")
         async def collect(interaction: discord.Interaction):
