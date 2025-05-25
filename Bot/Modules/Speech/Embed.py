@@ -14,6 +14,7 @@ class Embed:
         fields: Optional[List[Tuple[str, str, bool]]] = None,
         footer_text: Optional[str] = None,
         thumbnail_url: Optional[str] = None
+
     ) -> discord.Embed:
         """
         Creates and returns a discord.Embed object with random colors if not specified.

@@ -25,6 +25,9 @@ class RandomInteraction:
         elif choice == 3:
             self.console.log("✨ Sara had another spontaneous thought... ✨")
             await self.send_follow_up_comment(message, response_text)
+        elif choice == 4:
+            self.console.log("✨ Sara decided to post a video... ✨")
+            await message.channel.send(file=Shitpost(self.console).self_post(message.content.lower()))
 
         else:
             self.console.log("✨ Sara decided no extra action was needed. ✨")
