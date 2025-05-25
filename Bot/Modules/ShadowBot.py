@@ -71,12 +71,16 @@ class ShadowBot:
                     if random.randint(1, 5) == 1:
                         await message.channel.send(file=Shitpost(self.console).post(message.content.lower()))
                     else:
+                        past_messages = [msg async for msg in message.channel.history(limit=5)]
+                        conversational_context = "\n".join(
+                            f"{msg.author.name} diz: {msg.content}" for msg in past_messages
+                        )
                         self.console.log("✨ Thinking about what I should say... ✨")
                         response = Speech(self.getEnv("GEMINI_TOKEN"),self.console).contextSpeech(message.content, conversational_context)
                         self.console.log(response)
                         await message.channel.send(response.lower())
-                        if random.randint(1,10) == 1:
-                            self.console.log("✨I have an interesting story to tell. ✨")
+                        if random.randint(1,5) == 1:
+                            self.console.log("✨I decided to make an audio about this message. ✨")
                             await AudioGen(self.getEnv("OPENAI_API_KEY"), self.console).gen_audio(message,
                                                                                                   conversational_context)
 

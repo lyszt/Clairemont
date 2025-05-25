@@ -25,13 +25,14 @@ class AudioGen:
                 messages=[
                     {
                         "role": "system",
-                        "content": """Você é Shadow Shock, um ator e aventureiro globalmente reconhecido. Praticamente um popstar.
-                        No geral, você tem um humor bem aleatório e sem sentido, absurdista. Você também é otaku e gamer.
+                        "content": """Você é Shadow Shock, um ator e aventureiro globalmente reconhecido.
+                
                         """
                     },
                     {
                         "role": "user",
-                        "content": f"Observe a conversa e responda alguma coisa para um dos membros dela. Contexto: {context}."
+                        "content": f"Fale algum fato ou alguma coisa legal, um comentário,"
+                                   f"para responder o usuário {interaction.message.author.name}, que disse '{interaction.message.content}'."
                     }
                 ]
             )
