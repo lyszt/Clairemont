@@ -60,16 +60,14 @@ class ShadowBot:
             # In order to keep control of Shadow's autonomous behaviour
             allowed_guilds = [452243234002042880, 696830110493573190]
             allowed_channels = [704066892972949507]
-            past_messages = [msg async for msg in message.channel.history(limit=5)]
-            conversational_context = "\n".join(
-                f"{msg.author.name} diz: {msg.content}" for msg in past_messages
-            )
+
             if message.author == self.client.user: return
-            if ((("shadow" in message.content.lower() or
-                "luneta" in message.content.lower()) or
-                    (past_messages[1].author.id == self.client.user.id and random.randint(1,3) == 1))
-                    or f"<@{self.client.user.id}>" in message.content):
-                if message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
+            should_reply = (
+                    "shadow" in message.content.lower() or
+                    "luneta" in message.content.lower() or
+                    f"<@{self.client.user.id}>" in message.content
+            )
+            if should_reply and message.channel.id in allowed_channels or message.guild.id in allowed_guilds:
                     if random.randint(1, 5) == 1:
                         await message.channel.send(file=Shitpost(self.console).post(message.content.lower()))
                     else:
@@ -99,7 +97,7 @@ class ShadowBot:
                 await interaction.followup.send(file=discord.File("graph_2d.jpg"))
             except Exception as e:
                 self.console.log(e)
-                await interaction.followup.send("Não consegui colocar essa função em um gráfico. Dá uma olhada pra ver o que arrumar.")
+                await interaction.followup.send("Não consegui colocar essa função em um gráfico.", ephemeral=True)
 
         @self.tree.command(name="fxy")
         async def f_of_x_y(interaction: discord.Interaction, function: str):
