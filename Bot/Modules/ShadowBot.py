@@ -79,7 +79,7 @@ class ShadowBot:
                         response = Speech(self.getEnv("GEMINI_TOKEN"),self.console).contextSpeech(message.content, conversational_context)
                         self.console.log(response)
                         await message.channel.send(response.lower())
-                        if random.randint(1,1) == 1:
+                        if random.randint(1,5) == 1:
                             self.console.log("✨I decided to make an audio about this message. ✨")
                             await AudioGen(self.getEnv("OPENAI_API_KEY"), self.console).gen_audio(message,
                                                                                                   conversational_context)
