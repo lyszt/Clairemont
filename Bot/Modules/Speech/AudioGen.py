@@ -32,7 +32,7 @@ class AudioGen:
                     {
                         "role": "user",
                         "content": f"Fale algum fato ou alguma coisa legal, um comentário,"
-                                   f"para responder o usuário {interaction.message.author.name}, que disse '{interaction.message.content}'."
+                                   f"para responder o usuário {interaction.author.display_name}, que disse '{interaction.content}'."
                     }
                 ]
             )
