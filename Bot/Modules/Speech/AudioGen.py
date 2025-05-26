@@ -57,7 +57,6 @@ class AudioGen:
             # This simulates the sound bouncing in a large hall, like a tavern
             reverb_sound = sound.overlay(sound - 8, position=60)
             reverb_sound = reverb_sound.overlay(sound - 12, position=110)
-            reverb_sound = reverb_sound.overlay(sound - 15, position=160)
 
             # Export the processed audio
             reverb_sound.export(processed_audio_path, format="mp3")

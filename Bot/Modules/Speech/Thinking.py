@@ -19,6 +19,7 @@ class Thinking:
         2.  Do NOT change the core meaning or personality of the bot's response.
         3.  If the response is already good, return it unchanged.
         4.  Respond ONLY with the final, improved text. Do not add comments.
+        5. Keep it in the language in which it was spoken. If the user speaks english and the response is in portuguese, translate it.
 
         [USER'S CONTEXT]:
         {context}
