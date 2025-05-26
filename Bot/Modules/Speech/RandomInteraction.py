@@ -18,7 +18,7 @@ class RandomInteraction:
         choice = random.randint(1,5)
         if choice == 1:
             self.console.log("✨ Sara decided to send an audio to discord... ✨")
-            await AudioGen(self.openai_api_key, self.console).gen_audio(response_text, conversational_context)
+            await AudioGen(self.openai_api_key, self.console).gen_audio(message, conversational_context)
         elif choice == 2:
             self.console.log("✨ Sara decided to shitpost... ✨")
             await message.channel.send(file=Shitpost(self.console).post(message.content.lower()))
