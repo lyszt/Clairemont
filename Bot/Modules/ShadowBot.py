@@ -129,11 +129,11 @@ class ShadowBot:
         async def simplify_expression(interaction: discord.Interaction, expression: str):
             """ Simplifica uma expressão matemática qualquer usando simplify e simpify """
             await interaction.response.defer()
-            expression = expression.replace("²", "**2")
+            expression = expression.replace("²", "**2").replace("^","**")
             try:
                 Math.simplify(expression)
                 Math.save_latex_to_image(expression, filename="simplified_expression.jpg")
-                interaction.followup.send(file=discord.File("simplified_expression.jpg"))
+                await interaction.followup.send(file=discord.File("simplified_expression.jpg"))
             except Exception as e:
                 self.console.log(e)
                 await interaction.followup.send(
