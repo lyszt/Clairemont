@@ -1,4 +1,3 @@
-import matplotlib.pyplot
 from sympy import symbols, sympify, lambdify, simplify, latex
 import numpy as np
 from matplotlib import pyplot as plt
@@ -18,7 +17,7 @@ class Math:
             filename (str): The path to save the output image (e.g., 'expression.png').
             dpi (int): The resolution of the output image in dots per inch.
         """
-        expression = f"${latex(expression)}"
+        expression = f"${latex(sympify(expression))}$"
         fig, ax = plt.subplots(figsize=(2, 1))
         ax.axis('off')
         ax.text(0.5, 0.5, expression, size=25, ha='center', va='center')
