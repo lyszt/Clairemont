@@ -1,5 +1,5 @@
 import matplotlib.pyplot
-from sympy import symbols, sympify, lambdify
+from sympy import symbols, sympify, lambdify, simplify
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -53,5 +53,4 @@ class Graphing:
         ax.set_title(f"f(x, y) = {function}")
         plt.savefig("graph_3d.jpg")
         plt.close()
-
 

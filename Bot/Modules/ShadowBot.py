@@ -14,6 +14,7 @@ from Bot.Modules.Actions.Actions import Actions
 from Bot.Modules.Data.InitializeDatabases import InitializeDatabases
 from Bot.Modules.Data.dataCommands import dataCommands
 from Bot.Modules.Math.graphing import Graphing
+from Bot.Modules.Math.math import Math
 from Bot.Modules.Speech.AudioGen import AudioGen
 from Bot.Modules.Speech.Embed import Embed
 from Bot.Modules.Speech.RandomInteraction import RandomInteraction
@@ -124,7 +125,22 @@ class ShadowBot:
                 self.console.log(e)
                 await interaction.followup.send("Não consegui colocar essa função em um gráfico. Dá uma olhada pra ver o que arrumar.")
 
-    def getClient(self):
+        @self.tree.command(name="simplify")
+        async def simplify_expression(interaction: discord.Interaction, expression: str):
+            """ Simplifica uma expressão matemática qualquer usando simplify e simpify """
+            await interaction.response.defer()
+            expression = expression.replace("²", "**2")
+            try:
+                Math.simplify(expression)
+                Math.save_latex_to_image(expression, filename="simplified_expression.jpg")
+                interaction.followup.send(file=discord.File("simplified_expression.jpg"))
+            except Exception as e:
+            self.console.log(e)
+            await interaction.followup.send(
+                "Não consegui simplificar a função. Algo deu errado no processo. Cheque a entrada.", ephemeral=True)
+
+
+def getClient(self):
         return self.client
     def getTree(self):
         return self.tree
