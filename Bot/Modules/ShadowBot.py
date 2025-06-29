@@ -135,12 +135,12 @@ class ShadowBot:
                 Math.save_latex_to_image(expression, filename="simplified_expression.jpg")
                 interaction.followup.send(file=discord.File("simplified_expression.jpg"))
             except Exception as e:
-            self.console.log(e)
-            await interaction.followup.send(
-                "Não consegui simplificar a função. Algo deu errado no processo. Cheque a entrada.", ephemeral=True)
+                self.console.log(e)
+                await interaction.followup.send(
+                    "Não consegui simplificar a função. Algo deu errado no processo. Cheque a entrada.", ephemeral=True)
 
 
-def getClient(self):
+    def getClient(self):
         return self.client
     def getTree(self):
         return self.tree
