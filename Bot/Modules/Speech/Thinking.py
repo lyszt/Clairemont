@@ -60,20 +60,25 @@ class Thinking:
         """
         self.console.log(f"✨ Checking for command in message: '{user_message}' ✨")
 
-        # The prompt can be simplified slightly since the schema handles the structure
+
         prompt = f"""
-         You are an AI assistant that determines if a user's request corresponds to one of your available commands and extracts the argument.
+        You are an intelligent AI assistant. Your task is to analyze the user's message and determine:
+        1. Whether it corresponds to one of the known bot commands.
+        2. If so, extract or generate appropriate arguments.
 
-         Your available commands are:
-         - "simplify": Simplifies a mathematical expression.
-         - "fx": Generates a 2D plot of a function.
-         - "fxy": Generates a 3D plot of a function.
+        Available commands:
+        - "simplify": Simplify a mathematical expression. Example: simplify(x^2 + 2x + 1).
+        - "fx": Generate a 2D plot of a single-variable function (e.g. f(x) = sin(x)).
+        - "fxy": Generate a 3D plot of a two-variable function (e.g. f(x, y) = sin(x*y)).
 
-         If no command is found, return "None" as the command.
+        Instructions:
+        - If the message clearly maps to one of the above commands, return the command and an "args" field with the relevant expression or function.
+        - If the user does not specify an argument but asks you to choose (e.g., "show me a cool 3D function"), select a sensible or interesting default expression for them.
+        - If the message does not correspond to any known command, return "None" as the command.
 
-         User's Message: "{user_message}"
-         """
-
+        User's message:
+        "{user_message}"
+        """
 
         try:
             response = self.client.models.generate_content(
