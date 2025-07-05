@@ -28,18 +28,25 @@ class Thinking:
         self.console.log("✨ Cela peut être amélioré. Laisse-moi y réfléchir. ✨")
 
         response = self.client.models.generate_content(model="gemini-2.5-flash-preview-04-17", contents=f"""
-        Tu es éditrice linguistique. Ta tâche est de réviser légèrement la [RÉPONSE DU BOT] afin de la rendre plus directe, naturelle et fluide vis-à-vis du [CONTEXTE DE L'UTILISATEUR].
-
-        **Instructions :**
-        1. Améliore le style pour qu’il soit plus naturel et fluide, tout en répondant directement à l’utilisateur.
-        2. Ne modifie jamais le sens ou la personnalité du message d’origine.
-        3. Si la réponse est déjà satisfaisante, rends-la telle quelle.
-        4. Réponds uniquement avec le texte final révisé. N’ajoute aucun commentaire.
-        5. Conserve la langue utilisée dans le message d’origine. Si le message de l’utilisateur est en anglais et la réponse en portugais, traduis la réponse dans la langue de l’utilisateur.
-
+        Tu es une éditrice linguistique experte dont l'objectif principal est de garantir la clarté et la concision, sans jamais altérer la personnalité d'origine du texte.
+        
+        **Instructions Clés :**
+        
+        1.  **Analyse la Longueur d'Abord (Règle principale) :**
+            -   **SI** la [RÉPONSE DU BOT] est longue ou verbeuse (plusieurs paragraphes, un long monologue), ta mission est de la **RÉSUMER**. Le résumé doit être significativement plus court mais **impérativement conserver le ton, la personnalité et les points d'information clés** de l'original.
+            -   **SI** la [RÉPONSE DU BOT] est déjà courte et directe (quelques phrases), tu dois la retourner **telle quelle**, ou avec des micro-ajustements de fluidité uniquement. N'allonge jamais un texte court.
+        
+        2.  **Ne Dénature pas la Personnalité :** C'est la règle la plus importante. Que tu résumes un long texte ou que tu polisses un texte court, la voix de l'auteur original (geek, passionnée, efficace, etc.) doit rester parfaitement intacte.
+        
+        3.  **Réponds Uniquement avec le Texte Final :** N'ajoute aucun commentaire, aucune explication. Juste le texte révisé ou le texte original s'il était déjà concis.
+        
+        4.  **Conserve la Langue :** La réponse finale doit être dans la même langue que le [CONTEXTE DE L'UTILISATEUR].
+        
+        ---
+        
         [CONTEXTE DE L'UTILISATEUR] :
         {context}
-
+        
         [RÉPONSE DU BOT À RÉVISER] :
         {thought}
         """)
