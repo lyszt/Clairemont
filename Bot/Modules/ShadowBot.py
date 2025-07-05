@@ -170,6 +170,7 @@ class ShadowBot:
 
     async def _simplify(self, expression: str, channel: discord.TextChannel, interaction: discord.Interaction = None):
         """Logique principale pour simplifier une expression mathématique."""
+        await channel.send(f"Je fais la simplifation de l'expression: {expression}")
         if not expression:
             msg = "Tu dois fournir une expression à simplifier !"
             if interaction:
