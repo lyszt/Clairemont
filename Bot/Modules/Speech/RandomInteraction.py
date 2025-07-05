@@ -15,19 +15,22 @@ class RandomInteraction:
         self.client = OpenAI(api_key=self.openai_api_key)
 
     async def choose_interaction(self, message, response_text, conversational_context):
-        choice = random.randint(1,5)
+        choice = random.randint(1,6)
         if choice == 1:
             self.console.log("✨ Sara a décidé d’envoyer un message audio sur Discord... ✨")
             await AudioGen(self.openai_api_key, self.console).gen_audio(message, conversational_context)
         elif choice == 2:
             self.console.log("✨ Sara a décidé de faire un peu d’humour absurde... ✨")
-            await message.channel.send(file=Shitpost(self.console).post(message.content.lower()))
+            await message.channel.send(file=Shitpost(self.console).post_video(message.content.lower()))
         elif choice == 3:
             self.console.log("✨ Sara a eu une autre pensée spontanée... ✨")
             await self.send_follow_up_comment(message, response_text)
         elif choice == 4:
             self.console.log("✨ Sara a décidé de poster une vidéo... ✨")
             await message.channel.send(file=Shitpost(self.console).self_post(message.content.lower()))
+        elif choice == 5:
+            self.console.log("✨ Sara a décidé de faire du shitposting... ✨")
+            await message.channel.send(Shitpost(self.console).post_curl())
         else:
             self.console.log("✨ Sara a estimé qu’aucune action supplémentaire n’était nécessaire. ✨")
             pass
