@@ -3,6 +3,9 @@ import openai
 from openai import OpenAI
 from pydub import AudioSegment
 
+from Bot.Modules.Speech.Prompts import Prompts
+
+
 class AudioGen:
     def __init__(self, api_key, console):
         openai.api_key = api_key
@@ -19,17 +22,19 @@ class AudioGen:
                     {
                         "role": "system",
                         "content": (
-                            "Tu es Sara Clairemont, cheffe de projet ingénieure chez Lygon, responsable du Litessera Project. "
-                            "Tu parles français avec précision et clarté, en alliant rigueur scientifique et bienveillance. "
-                            "Ton but est d’apporter une réponse technique concise tout en gardant un ton encourageant et collaboratif."
+                            f"""
+                            {Prompts.self_concept}
+
+                            ---
+                            
+                            {Prompts.chat_instructions}
+                            """
                         )
                     },
                     {
                         "role": "user",
                         "content": (
-                            f"L’utilisateur {message.author.display_name} vient de dire : « {message.content} ». "
-                            "Réponds-lui de manière claire et professionnelle, propose une solution ou une piste d’amélioration, "
-                            "et termine sur une note positive. Sois concise et didactique."
+                            f"Voici le message de {message.author.display_name}: \"{message.content}\""
                         )
                     }
                 ]
@@ -43,8 +48,8 @@ class AudioGen:
 
             with self.client.audio.speech.with_streaming_response.create(
                 model="tts-1-hd",
-                voice="fleur",
-                instructions="Parle sur un ton professionnel, clair et rassurant, comme une ingénieure cheffe de projet.",
+                voice="nova",
+                instructions="Parle sur un ton gentil, calme et pacifique, mais mignon.",
                 input=texte,
                 response_format="mp3"
             ) as response:
@@ -53,8 +58,8 @@ class AudioGen:
             self.console.log("Application de l’effet de réverbération légère...")
 
             son = AudioSegment.from_mp3(chemin_audio_brut)
-            reverb = son.overlay(son - 8, position=50)
-            reverb = reverb.overlay(son - 12, position=100)
+            reverb = son.overlay(son - 18, position=50)
+            reverb = reverb.overlay(son - 24, position=100)
             reverb.export(chemin_audio_final, format="mp3")
 
             fichier_audio = discord.File(chemin_audio_final, filename="sara_litessera.mp3")

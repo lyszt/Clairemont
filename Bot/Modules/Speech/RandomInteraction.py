@@ -15,7 +15,7 @@ class RandomInteraction:
         self.client = OpenAI(api_key=self.openai_api_key)
 
     async def choose_interaction(self, message, response_text, conversational_context):
-        choice = random.randint(1,6)
+        choice = random.randint(1,1)
         if choice == 1:
             self.console.log("✨ Sara a décidé d’envoyer un message audio sur Discord... ✨")
             await AudioGen(self.openai_api_key, self.console).generate_audio(message, conversational_context)
