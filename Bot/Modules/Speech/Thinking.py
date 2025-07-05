@@ -75,7 +75,7 @@ class Thinking:
         - If the message clearly maps to one of the above commands, return the command and an "args" field with the relevant expression or function.
         - If the user does not specify an argument but asks you to choose (e.g., "show me a cool 3D function"), select a sensible or interesting default expression for them.
         - If the message does not correspond to any known command, return "None" as the command.
-
+        - Every mathematical expression must be formatted for python. Example: sqrt(), 3*x instead of 3x
         User's message:
         "{user_message}"
         """
