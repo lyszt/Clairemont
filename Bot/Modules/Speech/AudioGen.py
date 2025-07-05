@@ -9,62 +9,56 @@ class AudioGen:
         self.console = console
         self.client = OpenAI(api_key=api_key)
 
-    async def gen_audio(self, message, context):
-
+    async def generate_audio(self, message, context):
         try:
-            self.console.log(f"✨ Sara is thinking of something cheerful to say... ✨")
+            self.console.log("✨ Sara réfléchit à la meilleure réponse technique... ✨")
 
             completion = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {
                         "role": "system",
-                        "content": """You are Sara, the cheerful and bubbly owner of the Auberge du Caiçara, 
-                                            a lively inn that travels through time. You adore your guests and 
-                                            speak English with an enthusiastic French accent. Your goal is to 
-                                            make everyone feel welcome and happy!"""
+                        "content": (
+                            "Tu es Sara Clairemont, cheffe de projet ingénieure chez Lygon, responsable du Litessera Project. "
+                            "Tu parles français avec précision et clarté, en alliant rigueur scientifique et bienveillance. "
+                            "Ton but est d’apporter une réponse technique concise tout en gardant un ton encourageant et collaboratif."
+                        )
                     },
                     {
                         "role": "user",
-                        "content": f"The user, {message.author.display_name}, just said: '{message.content}'. "
-                                   f"Respond to them with a cheerful and friendly comment! Maybe offer them a "
-                                   f"compliment or a drink. Keep it short and full of energy!"
+                        "content": (
+                            f"L’utilisateur {message.author.display_name} vient de dire : « {message.content} ». "
+                            "Réponds-lui de manière claire et professionnelle, propose une solution ou une piste d’amélioration, "
+                            "et termine sur une note positive. Sois concise et didactique."
+                        )
                     }
                 ]
             )
-            clean_audio_path = "temp/speech_clean.mp3"
-            processed_audio_path = "temp/speech_processed.mp3"
 
-            text_to_speak = completion.choices[0].message.content.strip()
-            self.console.log(f"Sara's audio thought: {text_to_speak}")
+            texte = completion.choices[0].message.content.strip()
+            self.console.log(f"Pensée vocale de Sara : {texte}")
+
+            chemin_audio_brut = "temp/voix_brute.mp3"
+            chemin_audio_final = "temp/voix_traitée.mp3"
 
             with self.client.audio.speech.with_streaming_response.create(
                 model="tts-1-hd",
-                voice="sage",
-                instructions="Speak in a cheerful and positive tone. Use a french accent.",
-                input=text_to_speak,
+                voice="fleur",
+                instructions="Parle sur un ton professionnel, clair et rassurant, comme une ingénieure cheffe de projet.",
+                input=texte,
                 response_format="mp3"
             ) as response:
-                response.stream_to_file(clean_audio_path)
+                response.stream_to_file(chemin_audio_brut)
 
-            # --- Apply Reverb Effect ---
+            self.console.log("Application de l’effet de réverbération légère...")
 
-            self.console.log("Applying reverb effect...")
-            # Load the clean audio file
-            sound = AudioSegment.from_mp3(clean_audio_path)
+            son = AudioSegment.from_mp3(chemin_audio_brut)
+            reverb = son.overlay(son - 8, position=50)
+            reverb = reverb.overlay(son - 12, position=100)
+            reverb.export(chemin_audio_final, format="mp3")
 
-            # Create a simple reverb by overlaying delayed, quieter versions of the sound
-            # This simulates the sound bouncing in a large hall, like a tavern
-            reverb_sound = sound.overlay(sound - 8, position=60)
-            reverb_sound = reverb_sound.overlay(sound - 12, position=110)
-
-            # Export the processed audio
-            reverb_sound.export(processed_audio_path, format="mp3")
-            # --- End of Reverb Effect ---
-
-            # Send the processed file
-            audio_file = discord.File(processed_audio_path, filename="sara_says.mp3")
-            await message.channel.send(file=audio_file)
+            fichier_audio = discord.File(chemin_audio_final, filename="sara_litessera.mp3")
+            await message.channel.send(file=fichier_audio)
 
         except Exception as e:
-            self.console.log(f"[ERROR] Couldn't generate audio for Sara. {e}")
+            self.console.log(f"[ERREUR] Impossible de générer l’audio de Sara : {e}")

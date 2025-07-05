@@ -29,7 +29,7 @@ class Actions:
 
         presence_status = QuoteFetcher(self.console).fetch_random_quote().get_quote()
         if presence_status == "" or "QUERY LIMITED EXCEEDED" in presence_status or presence_status is None:
-            presence_status = "Shadow da sombra te assombra."
+            presence_status = "Moi je ne suis qu’une enfant de la France, à l’ennemi je ne tends pas la main."
         try:
             await self.client.change_presence(
                 status=discord.Status.dnd,
