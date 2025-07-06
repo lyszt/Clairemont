@@ -11,6 +11,7 @@ from peewee import SqliteDatabase
 from rich.console import Console
 
 from Bot.Modules.Actions.Actions import Actions
+from Bot.Modules.Actions.Sigaa import Sigaa
 from Bot.Modules.Data.InitializeDatabases import InitializeDatabases
 from Bot.Modules.Data.dataCommands import dataCommands
 from Bot.Modules.Math.graphing import Graphing
@@ -21,11 +22,10 @@ from Bot.Modules.Speech.RandomInteraction import RandomInteraction
 from Bot.Modules.Speech.Shitpost import Shitpost
 from Bot.Modules.Speech.Speech import Speech
 from Bot.Modules.Speech.Thinking import Thinking
-
+from Bot.Modules.Actions.WebDriver import WebDriver
 
 class ShadowBot:
     def __init__(self, intents, directory):
-        # GÉNÉRAL
         self.directory = directory
         ENV_PATH = ".env"
         load_dotenv(ENV_PATH)
@@ -48,7 +48,8 @@ class ShadowBot:
         self.commands = {
             "simplify": self._simplify,
             "fx": self._graph_2d,
-            "fxy": self._graph_3d
+            "fxy": self._graph_3d,
+            "get_college_information": self._get_college_information
         }
 
         @self.client.event
@@ -80,22 +81,40 @@ class ShadowBot:
                 async with message.channel.typing():
                     command_data = self.decision_maker.get_bot_command(message.content)
                     command_name = command_data.get("command")
+                    api_key = self.getEnv("GEMINI_TOKEN")
 
                     if command_name in self.commands:
                         command_arg = command_data.get("arg")
                         command_to_execute = self.commands[command_name]
-                        await command_to_execute(command_arg, message.channel)
-                        return
+                        argless_commands = ["get_college_information"]
+                        if command_name in argless_commands:
+                            command_information = await command_to_execute()
+                        else:
+                            command_information = await command_to_execute(command_arg, message.channel)
 
-                    api_key = self.getEnv("GEMINI_TOKEN")
-                    past_messages = [msg async for msg in message.channel.history(limit=5)]
-                    conversational_context = "\n".join(
-                        f"{msg.author.name} dit : {msg.content}" for msg in reversed(past_messages)
-                    )
+                        if isinstance(command_information, dict):
+                            past_messages = [msg async for msg in message.channel.history(limit=5)]
+                            conversational_context = "\n".join(
+                                f"{msg.author.name} dit : {msg.content}" for msg in reversed(past_messages)
+                            )
 
-                    self.console.log(f"✨ Sara réfléchit à une réponse pour : '{message.content}'... ✨")
-                    response_text = Speech(api_key, self.console).contextSpeech(message.content, conversational_context)
-                    self.console.log(f"Réflexion de Sara : {response_text}")
+                            self.console.log(f"✨ Sara réfléchit à une réponse pour : '{message.content}'... ✨")
+                            response_text = Speech(api_key, self.console).contextSpeech(message.content, f"NECESSARY INFORMATION: {command_information} - {conversational_context}")
+                            self.console.log(f"Réflexion de Sara : {response_text}")
+                        elif command_information is None:
+                            return
+                    else:
+                        past_messages = [msg async for msg in message.channel.history(limit=5)]
+                        conversational_context = "\n".join(
+                        f"{msg.author.name} dit : {msg.content}"
+                        for msg in reversed(past_messages)
+                        )
+
+                        self.console.log(f"✨ Sara réfléchit à une réponse pour : '{message.content}'... ✨")
+                        response_text = Speech(api_key, self.console).contextSpeech(message.content,
+                                                                                    f"NECESSARY INFORMATION: {conversational_context}")
+                        self.console.log(f"Réflexion de Sara : {response_text}")
+
 
                     sara_embed = Embed.create(
                         title="Depuis son poste de travail, Sara répond...",
@@ -244,3 +263,6 @@ class ShadowBot:
                 await interaction.followup.send(error_message, ephemeral=True)
             else:
                 await channel.send(error_message)
+
+    async def _get_college_information(self):
+        return Sigaa().getCurriculum()

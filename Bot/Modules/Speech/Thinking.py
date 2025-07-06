@@ -70,6 +70,7 @@ class Thinking:
         - "simplify": Simplify a mathematical expression. Example: simplify(x^2 + 2x + 1).
         - "fx": Generate a 2D plot of a single-variable function (e.g. f(x) = sin(x)).
         - "fxy": Generate a 3D plot of a two-variable function (e.g. f(x, y) = sin(x*y)).
+        - "get_college_information": Gets the course, curriculum, disciplines and due homeworks of the user.
 
         Instructions:
         - If the message clearly maps to one of the above commands, return the command and an "args" field with the relevant expression or function.

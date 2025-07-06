@@ -9,7 +9,13 @@ openai
 requests
 simpy
 matplotlib
+beautifulsoup4
 sympy
 aiofiles
+selenium
 numpy
+selenium_stealth
+fake_useragent
 pydub
+pydantic
+undetected-chromedriver
