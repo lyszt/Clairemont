@@ -71,6 +71,7 @@ class Thinking:
         - "fx": Generate a 2D plot of a single-variable function (e.g. f(x) = sin(x)).
         - "fxy": Generate a 3D plot of a two-variable function (e.g. f(x, y) = sin(x*y)).
         - "get_college_information": Gets the course, curriculum, disciplines and due homeworks of the user.
+        - "expand_polynomial" : Expands a polynomial of the form (a-b)^n or (a+b)^n and returns it to the user
 
         Instructions:
         - If the message clearly maps to one of the above commands, return the command and an "args" field with the relevant expression or function.

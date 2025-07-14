@@ -1,4 +1,4 @@
-from sympy import symbols, sympify, lambdify, simplify, latex
+from sympy import symbols, sympify, lambdify, simplify, latex, expand
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -7,6 +7,12 @@ class Math:
     def simplify(expression: str):
         expression = simplify(sympify(expression))
         return expression
+
+    @staticmethod
+    def expand(polynomial: str):
+        x = symbols('x')
+        expanded_exp = expand(sympify(polynomial))
+        return expanded_exp
 
     @staticmethod
     def save_latex_to_image(expression: str, filename, dpi=300):

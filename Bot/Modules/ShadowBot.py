@@ -49,7 +49,8 @@ class ShadowBot:
             "simplify": self._simplify,
             "fx": self._graph_2d,
             "fxy": self._graph_3d,
-            "get_college_information": self._get_college_information
+            "get_college_information": self._get_college_information,
+            "expand_polynomial": self._expand_polynomial
         }
 
         @self.client.event
@@ -150,6 +151,10 @@ class ShadowBot:
             await interaction.response.defer()
             await self._simplify(expression, interaction.channel, interaction)
 
+        @self.tree.command(name="polynomial_expansion")
+        async def polynomial_expansion(interaction: discord.Interaction, polynomial:str):
+            await interaction.response.defer()
+            await self._expand_polynomial(polynomial, interaction.channel, interaction)
     def getClient(self):
         return self.client
 
@@ -256,6 +261,33 @@ class ShadowBot:
                 await interaction.followup.send(file=discord.File("graph_3d.jpg"))
             else:
                 await channel.send(file=discord.File("graph_3d.jpg"))
+        except Exception as e:
+            self.console.log(e)
+            error_message = "Je n’ai pas pu tracer cette fonction. Vérifie les variables ou la syntaxe."
+            if interaction:
+                await interaction.followup.send(error_message, ephemeral=True)
+            else:
+                await channel.send(error_message)
+
+    async def _expand_polynomial(self, polynomial: str, channel: discord.TextChannel, interaction: discord.Interaction = None):
+        """Expansion de polynomes complexes."""
+        if not polynomial:
+            msg = "Tu dois fournir une fonction à tracer !"
+            if interaction:
+                await interaction.followup.send(msg, ephemeral=True)
+            else:
+                await channel.send(msg)
+            return
+
+        function = polynomial.replace("²", "**2")
+        function = polynomial.replace("^","**")
+        try:
+            expanded_polynomial = Math.expand(polynomial)
+            Math.save_latex_to_image(expanded_polynomial, filename="expanded_polynomial.jpg")
+            if interaction:
+                await interaction.followup.send(file=discord.File("expanded_polynomial.jpg"))
+            else:
+                await channel.send(file=discord.File("expanded_polynomial.jpg"))
         except Exception as e:
             self.console.log(e)
             error_message = "Je n’ai pas pu tracer cette fonction. Vérifie les variables ou la syntaxe."
