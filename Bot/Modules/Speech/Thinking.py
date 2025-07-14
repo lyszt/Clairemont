@@ -67,12 +67,21 @@ class Thinking:
         2. If so, extract or generate appropriate arguments.
 
         Available commands:
-        - "simplify": Simplify a mathematical expression. Example: simplify(x^2 + 2x + 1).
-        - "fx": Generate a 2D plot of a single-variable function (e.g. f(x) = sin(x)).
-        - "fxy": Generate a 3D plot of a two-variable function (e.g. f(x, y) = sin(x*y)).
-        - "get_college_information": Gets the course, curriculum, disciplines and due homeworks of the user.
-        - "expand_polynomial" : Expands a polynomial of the form (a-b)^n or (a+b)^n and returns it to the user
-
+        "fx": "Generate a 2D plot of a single-variable function.",
+        "fxy": "Generate a 3D plot of a two-variable function.",
+        "get_college_information": "Gets the course, curriculum, disciplines and due homeworks of the user.",
+        "simplify": "Simplifies a mathematical expression.",
+        "expand": "Expands a polynomial.",
+        "factor": "Factors an expression into its irreducible factors.",
+        "solve": "Solves an equation for a variable.",
+        "diff": "Differentiates an expression with respect to a variable.",
+        "integrate": "Computes the integral of an expression.",
+        "limit": "Calculates the limit of an expression as a variable approaches a point.",
+        "det": "Calculates the determinant of a matrix.",
+        "inv": "Calculates the inverse of a square matrix.",
+        "eigenvals": "Finds the eigenvalues of a square matrix.",
+        "to_image": "Renders a mathematical expression to an image file."
+        
         Instructions:
         - If the message clearly maps to one of the above commands, return the command and an "args" field with the relevant expression or function.
         - If the user does not specify an argument but asks you to choose (e.g., "show me a cool 3D function"), select a sensible or interesting default expression for them.

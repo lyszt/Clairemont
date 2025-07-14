@@ -2,6 +2,7 @@ import glob
 import logging
 import os
 import random
+import re
 
 import discord
 from discord import app_commands
@@ -9,6 +10,7 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 from peewee import SqliteDatabase
 from rich.console import Console
+from sympy import SympifyError
 
 from Bot.Modules.Actions.Actions import Actions
 from Bot.Modules.Actions.Sigaa import Sigaa
@@ -46,11 +48,29 @@ class ShadowBot:
 
         action = Actions(self.tree, self.console, self.client)
         self.commands = {
-            "simplify": self._simplify,
+            # Plotting and Info
             "fx": self._graph_2d,
             "fxy": self._graph_3d,
             "get_college_information": self._get_college_information,
-            "expand_polynomial": self._expand_polynomial
+
+            # Symbolic Algebra
+            "simplify": self._simplify,
+            "expand": self._expand_polynomial,
+            "factor": self._factor_expression,
+            "solve": self._solve_equation,
+
+            # Calculus
+            "diff": self._differentiate,
+            "integrate": self._integrate,
+            "limit": self._calculate_limit,
+
+            # Matrix Operations
+            "det": self._matrix_determinant,
+            "inv": self._matrix_inverse,
+            "eigenvals": self._matrix_eigenvals,
+
+            # Utility
+            "to_image": self._save_to_image,
         }
 
         @self.client.event
@@ -145,16 +165,61 @@ class ShadowBot:
             await interaction.response.defer()
             await self._graph_3d(function, interaction.channel, interaction)
 
-        @self.tree.command(name="simplify")
+        @self.tree.command(name="simplify", description="Simplifie une expression mathématique.")
         async def simplify_expression(interaction: discord.Interaction, expression: str):
-            """ Simplifie une expression mathématique en utilisant simplify. """
             await interaction.response.defer()
             await self._simplify(expression, interaction.channel, interaction)
 
-        @self.tree.command(name="polynomial_expansion")
-        async def polynomial_expansion(interaction: discord.Interaction, polynomial:str):
+        @self.tree.command(name="expand", description="Développe une expression polynomiale.")
+        async def expand_polynomial_command(interaction: discord.Interaction, polynomial: str):
             await interaction.response.defer()
             await self._expand_polynomial(polynomial, interaction.channel, interaction)
+
+        @self.tree.command(name="factor", description="Factorise une expression mathématique.")
+        async def factor_expression_command(interaction: discord.Interaction, expression: str):
+            await interaction.response.defer()
+            await self._factor_expression(expression, interaction.channel, interaction)
+
+        @self.tree.command(name="solve", description="Résout une équation pour une variable (ex: x**2 - 1).")
+        async def solve_equation_command(interaction: discord.Interaction, equation: str, variable: str = "x"):
+            await interaction.response.defer()
+            await self._solve_equation(equation, channel=interaction.channel, interaction=interaction,
+                                       variable=variable)
+
+        @self.tree.command(name="diff", description="Dérive une expression par rapport à une variable.")
+        async def differentiate_command(interaction: discord.Interaction, expression: str, variable: str = "x"):
+            await interaction.response.defer()
+            await self._differentiate(expression, channel=interaction.channel, interaction=interaction,
+                                      variable=variable)
+
+        @self.tree.command(name="integrate", description="Intègre une expression par rapport à une variable.")
+        async def integrate_command(interaction: discord.Interaction, expression: str, variable: str = "x"):
+            await interaction.response.defer()
+            await self._integrate(expression, channel=interaction.channel, interaction=interaction, variable=variable)
+
+        @self.tree.command(name="limit", description="Calcule la limite d'une expression.")
+        async def limit_command(interaction: discord.Interaction, expression: str, variable: str, point: str):
+            await interaction.response.defer()
+            await self._calculate_limit(expression, channel=interaction.channel, interaction=interaction,
+                                        variable=variable, point=point)
+
+        @self.tree.command(name="det", description="Calcule le déterminant d'une matrice.")
+        async def det_command(interaction: discord.Interaction, matrix: str):
+            await interaction.response.defer()
+            await self._matrix_determinant(matrix, interaction.channel, interaction)
+
+        @self.tree.command(name="inv", description="Calcule l'inverse d'une matrice.")
+        async def inv_command(interaction: discord.Interaction, matrix: str):
+            await interaction.response.defer()
+            await self._matrix_inverse(matrix, interaction.channel, interaction)
+
+        @self.tree.command(name="eigenvals", description="Trouve les valeurs propres d'une matrice.")
+        async def eigenvals_command(interaction: discord.Interaction, matrix: str):
+            await interaction.response.defer()
+            await self._matrix_eigenvals(matrix, interaction.channel, interaction)
+
+        # --- Bot Setup Methods ---
+
     def getClient(self):
         return self.client
 
@@ -166,14 +231,8 @@ class ShadowBot:
 
     def getEnv(self, variable: str) -> str:
         try:
-            self.console.log(f"Récupération de la variable d’environnement : {variable}")
-
-            if os.getenv(variable) is None:
-                self.console.log("Variable d’environnement non définie.")
-                return ""
             env_var = os.environ.get(variable)
-            self.console.log(f"Variable acquise : {env_var[:5]}...")
-            return env_var
+            return "" if env_var is None else env_var
         except Exception as err:
             raise Exception(f"Variable d’environnement {variable} introuvable. - {err.args} : {err}")
 
@@ -181,116 +240,160 @@ class ShadowBot:
         self.console.log("Initialisation des bases de données.")
         InitializeDatabases(self.console, self.directory).initializeCorte()
 
-    def killDatabases(self):
-        self.console.log("Fermeture des bases de données...")
-        for db_file in glob.glob("Bot/Data/**/*.db", recursive=True):
-            try:
-                db = SqliteDatabase(db_file)
-                if not db.is_closed():
-                    db.close()
-                logging.info(f"Base de données fermée : {db_file}")
-            except Exception as e:
-                self.console.log(f"Échec de la fermeture de la base {db_file} : {e}")
+    # --- Helper & Command Logic Methods ---
+    def _prepare_expression(self, expression: str) -> str:
+        """Cleans and formats a math expression string for sympy."""
+        if not isinstance(expression, str): return ""
+        # Replace common characters
+        expr = expression.replace("²", "**2").replace("^", "**")
+        # Add explicit multiplication operator for expressions like 'x2' -> 'x**2'
+        # This regex finds a letter followed by one or more digits and inserts '**'
+        expr = re.sub(r'([a-zA-Z])([0-9]+)', r'\1**\2', expr)
+        return expr
 
-    async def _simplify(self, expression: str, channel: discord.TextChannel, interaction: discord.Interaction = None):
-        """Logique principale pour simplifier une expression mathématique."""
-        await channel.send(f"Je fais la simplifation de l'expression: {expression}")
+    async def _send_math_result(self, result, filename, channel, interaction):
+        """Helper function to save and send math results as images."""
+        if "Error" in str(result):
+            error_message = str(result)
+        else:
+            try:
+                if isinstance(result, dict):
+                    formatted_result = ", ".join(
+                        [f"\\lambda_{{{i + 1}}} = {val}" for i, val in enumerate(result.keys())])
+                else:
+                    formatted_result = str(result)
+                Math.save_latex_to_image(formatted_result, filename=filename)
+                file = discord.File(filename)
+                if interaction:
+                    await interaction.followup.send(file=file)
+                else:
+                    await channel.send(file=file)
+                return
+            except Exception as e:
+                self.console.log(f"Error in _send_math_result: {e}")
+                error_message = "Je n'ai pas pu générer une image pour ce résultat."
+        if interaction:
+            await interaction.followup.send(error_message, ephemeral=True)
+        else:
+            await channel.send(error_message)
+
+    # --- Private Command Implementations ---
+    async def _execute_math_command(self, math_function, expression, filename, channel, interaction, *args, **kwargs):
+        """Generic executor for math commands to reduce code duplication."""
         if not expression:
-            msg = "Tu dois fournir une expression à simplifier !"
+            msg = "Vous devez fournir une expression."
             if interaction:
                 await interaction.followup.send(msg, ephemeral=True)
             else:
                 await channel.send(msg)
             return
 
-        expression = expression.replace("²", "**2").replace("^", "**")
         try:
-            Math.simplify(expression)
-            Math.save_latex_to_image(expression, filename="simplified_expression.jpg")
-
+            prepared_expression = self._prepare_expression(expression)
+            result = math_function(prepared_expression, *args, **kwargs)
+            await self._send_math_result(result, filename, channel, interaction)
+        except SympifyError:
+            error_message = f"Je n'ai pas pu comprendre l'expression : `{expression}`. Assurez-vous d'utiliser une notation valide comme `x**2` ou `x^2`."
             if interaction:
-                await interaction.followup.send(file=discord.File("simplified_expression.jpg"))
+                await interaction.followup.send(error_message, ephemeral=True)
             else:
-                await channel.send(file=discord.File("simplified_expression.jpg"))
+                await channel.send(error_message)
         except Exception as e:
-            self.console.log(e)
-            error_message = "Je n’ai pas pu simplifier cette fonction. Vérifie ton entrée."
+            self.console.log(f"An unexpected error occurred in {math_function.__name__}: {e}")
+            error_message = "Une erreur inattendue est survenue."
             if interaction:
                 await interaction.followup.send(error_message, ephemeral=True)
             else:
                 await channel.send(error_message)
 
+    async def _simplify(self, expression: str, channel: discord.TextChannel, interaction: discord.Interaction = None):
+        await self._execute_math_command(Math.simplify, expression, "simplified.jpg", channel, interaction)
+
+    async def _expand_polynomial(self, polynomial: str, channel: discord.TextChannel,
+                                 interaction: discord.Interaction = None):
+        await self._execute_math_command(Math.expand, polynomial, "expanded.jpg", channel, interaction)
+
+    async def _factor_expression(self, expression: str, channel: discord.TextChannel,
+                                 interaction: discord.Interaction = None):
+        await self._execute_math_command(Math.factor, expression, "factored.jpg", channel, interaction)
+
+    async def _solve_equation(self, equation: str, channel: discord.TextChannel,
+                              interaction: discord.Interaction = None, variable: str = "x"):
+        await self._execute_math_command(Math.solve_equation, equation, "solved.jpg", channel, interaction, variable)
+
+    async def _differentiate(self, expression: str, channel: discord.TextChannel,
+                             interaction: discord.Interaction = None, variable: str = "x"):
+        await self._execute_math_command(Math.differentiate, expression, "differentiated.jpg", channel, interaction,
+                                         variable)
+
+    async def _integrate(self, expression: str, channel: discord.TextChannel, interaction: discord.Interaction = None,
+                         variable: str = "x"):
+        await self._execute_math_command(Math.integrate, expression, "integrated.jpg", channel, interaction, variable)
+
+    async def _calculate_limit(self, expression: str, channel: discord.TextChannel,
+                               interaction: discord.Interaction = None, variable: str = 'x', point: str = '0'):
+        await self._execute_math_command(Math.calculate_limit, expression, "limit.jpg", channel, interaction, variable,
+                                         point)
+
+    async def _matrix_determinant(self, matrix_str: str, channel: discord.TextChannel,
+                                  interaction: discord.Interaction = None):
+        await self._execute_math_command(Math.matrix_determinant, matrix_str, "determinant.jpg", channel, interaction)
+
+    async def _matrix_inverse(self, matrix_str: str, channel: discord.TextChannel,
+                              interaction: discord.Interaction = None):
+        await self._execute_math_command(Math.matrix_inverse, matrix_str, "inverse.jpg", channel, interaction)
+
+    async def _matrix_eigenvals(self, matrix_str: str, channel: discord.TextChannel,
+                                interaction: discord.Interaction = None):
+        await self._execute_math_command(Math.matrix_eigenvals, matrix_str, "eigenvals.jpg", channel, interaction)
+
+    async def _save_to_image(self, expression: str, channel: discord.TextChannel,
+                             interaction: discord.Interaction = None):
+        await self._execute_math_command(lambda expr: expr, expression, "saved_image.jpg", channel, interaction)
+
     async def _graph_2d(self, function: str, channel: discord.TextChannel, interaction: discord.Interaction = None):
-        """Logique principale pour tracer une fonction en 2D."""
         if not function:
-            msg = "Tu dois fournir une fonction à tracer !"
+            msg = "Vous devez fournir une fonction à tracer !"
             if interaction:
                 await interaction.followup.send(msg, ephemeral=True)
             else:
                 await channel.send(msg)
             return
-
         try:
-            Graphing(self.console).graph_2d(function)
+            prepared_function = self._prepare_expression(function)
+            Graphing(self.console).graph_2d(prepared_function)
+            file = discord.File("graph_2d.jpg")
             if interaction:
-                await interaction.followup.send(file=discord.File("graph_2d.jpg"))
+                await interaction.followup.send(file=file)
             else:
-                await channel.send(file=discord.File("graph_2d.jpg"))
+                await channel.send(file=file)
         except Exception as e:
             self.console.log(e)
-            error_message = "Je n’ai pas pu tracer cette fonction."
+            error_message = "Je n'ai pas pu tracer cette fonction. Vérifiez la syntaxe."
             if interaction:
                 await interaction.followup.send(error_message, ephemeral=True)
             else:
                 await channel.send(error_message)
 
     async def _graph_3d(self, function: str, channel: discord.TextChannel, interaction: discord.Interaction = None):
-        """Logique principale pour tracer une fonction en 3D."""
         if not function:
-            msg = "Tu dois fournir une fonction à tracer !"
+            msg = "Vous devez fournir une fonction à tracer !"
             if interaction:
                 await interaction.followup.send(msg, ephemeral=True)
             else:
                 await channel.send(msg)
             return
-
-        function = function.replace("²", "**2")
         try:
-            Graphing(self.console).graph_3d(function)
+            prepared_function = self._prepare_expression(function)
+            Graphing(self.console).graph_3d(prepared_function)
+            file = discord.File("graph_3d.jpg")
             if interaction:
-                await interaction.followup.send(file=discord.File("graph_3d.jpg"))
+                await interaction.followup.send(file=file)
             else:
-                await channel.send(file=discord.File("graph_3d.jpg"))
+                await channel.send(file=file)
         except Exception as e:
             self.console.log(e)
-            error_message = "Je n’ai pas pu tracer cette fonction. Vérifie les variables ou la syntaxe."
-            if interaction:
-                await interaction.followup.send(error_message, ephemeral=True)
-            else:
-                await channel.send(error_message)
-
-    async def _expand_polynomial(self, polynomial: str, channel: discord.TextChannel, interaction: discord.Interaction = None):
-        """Expansion de polynomes complexes."""
-        if not polynomial:
-            msg = "Tu dois fournir une fonction à tracer !"
-            if interaction:
-                await interaction.followup.send(msg, ephemeral=True)
-            else:
-                await channel.send(msg)
-            return
-
-        function = polynomial.replace("²", "**2")
-        function = polynomial.replace("^","**")
-        try:
-            expanded_polynomial = Math.expand(polynomial)
-            Math.save_latex_to_image(expanded_polynomial, filename="expanded_polynomial.jpg")
-            if interaction:
-                await interaction.followup.send(file=discord.File("expanded_polynomial.jpg"))
-            else:
-                await channel.send(file=discord.File("expanded_polynomial.jpg"))
-        except Exception as e:
-            self.console.log(e)
-            error_message = "Je n’ai pas pu tracer cette fonction. Vérifie les variables ou la syntaxe."
+            error_message = "Je n'ai pas pu tracer cette fonction. Vérifiez vos variables et votre syntaxe."
             if interaction:
                 await interaction.followup.send(error_message, ephemeral=True)
             else:
