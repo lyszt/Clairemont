@@ -27,7 +27,7 @@ class Thinking:
     def naturalize(self, thought: str, context: str) -> str:
         self.console.log("✨ Cela peut être amélioré. Laisse-moi y réfléchir. ✨")
 
-        response = self.client.models.generate_content(model="gemini-2.5-flash-preview-04-17", contents=f"""
+        response = self.client.models.generate_content(model="gemini-2.5-flash", contents=f"""
         Tu es une éditrice linguistique experte dont l'objectif principal est de garantir la clarté et la concision, sans jamais altérer la personnalité d'origine du texte.
         
         **Instructions Clés :**
