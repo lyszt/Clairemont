@@ -93,8 +93,8 @@ class ShadowBot:
             allowed_channels = [704066892972949507]
 
             should_reply = (
-                "sara" in message.content.lower() or
-                f"<@{self.client.user.id}>" in message.content
+                "brianna" in message.content.lower() or
+                f"<@{self.client.user.id}>" in message.content or "clairemont" in message.content
             )
 
             is_allowed_location = message.guild.id in allowed_guilds or message.channel.id in allowed_channels
@@ -116,12 +116,12 @@ class ShadowBot:
                         if isinstance(command_information, dict):
                             past_messages = [msg async for msg in message.channel.history(limit=5)]
                             conversational_context = "\n".join(
-                                f"{msg.author.name} dit : {msg.content}" for msg in reversed(past_messages)
+                                f"{msg.author.name} says : {msg.content}" for msg in reversed(past_messages)
                             )
 
-                            self.console.log(f"✨ Sara réfléchit à une réponse pour : '{message.content}'... ✨")
+                            self.console.log(f"✨ Brianna réfléchit à une réponse pour : '{message.content}'... ✨")
                             response_text = Speech(api_key, self.console).contextSpeech(message.content, f"NECESSARY INFORMATION: {command_information} - {conversational_context}")
-                            self.console.log(f"Réflexion de Sara : {response_text}")
+                            self.console.log(f"Réflexion de Brianna : {response_text}")
                         elif command_information is None:
                             return
                     else:
@@ -131,10 +131,10 @@ class ShadowBot:
                         for msg in reversed(past_messages)
                         )
 
-                        self.console.log(f"✨ Sara réfléchit à une réponse pour : '{message.content}'... ✨")
+                        self.console.log(f"✨ Brianna réfléchit à une réponse pour : '{message.content}'... ✨")
                         response_text = Speech(api_key, self.console).contextSpeech(message.content,
                                                                                     f"NECESSARY INFORMATION: {conversational_context}")
-                        self.console.log(f"Réflexion de Sara : {response_text}")
+                        self.console.log(f"Réflexion de Brianna : {response_text}")
 
 
                     sara_embed = Embed.create(

@@ -27,7 +27,7 @@ class Speech:
 
     def simpleSpeech(self, message: str) -> str:
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-pro",
             contents=f"{Prompts.self_concept}, {Prompts.chat_instructions} - MESSAGE: {message}"
         )
         formatted_response = (response.text.strip("\n")).replace("\n", " ")

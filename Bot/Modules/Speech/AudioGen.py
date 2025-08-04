@@ -14,7 +14,7 @@ class AudioGen:
 
     async def generate_audio(self, message, context):
         try:
-            self.console.log("✨ Sara réfléchit à la meilleure réponse technique... ✨")
+            self.console.log("✨ Brianna réfléchit à la meilleure réponse technique... ✨")
 
             completion = self.client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -41,7 +41,7 @@ class AudioGen:
             )
 
             texte = completion.choices[0].message.content.strip()
-            self.console.log(f"Pensée vocale de Sara : {texte}")
+            self.console.log(f"Pensée vocale de Brianna : {texte}")
 
             chemin_audio_brut = "temp/voix_brute.mp3"
             chemin_audio_final = "temp/voix_traitée.mp3"
@@ -66,4 +66,4 @@ class AudioGen:
             await message.channel.send(file=fichier_audio)
 
         except Exception as e:
-            self.console.log(f"[ERREUR] Impossible de générer l’audio de Sara : {e}")
+            self.console.log(f"[ERREUR] Impossible de générer l’audio de Brianna : {e}")

@@ -4,7 +4,7 @@ import discord
 import atexit
 
 
-from Bot.Modules.ShadowBot import ShadowBot
+from Bot.Modules.ClairemontBot import ShadowBot
 
 # GLOBALS
 intents = discord.Intents.default()
