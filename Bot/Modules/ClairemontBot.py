@@ -138,7 +138,7 @@ class ShadowBot:
 
 
                     sara_embed = Embed.create(
-                        title="Depuis son poste de travail, Sara répond...",
+                        title="Brianna, the emperor's right hand, responds...",
                         description=response_text,
                         footer_text="Projet Litessera • Lygon",
                     )
